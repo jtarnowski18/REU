@@ -1,0 +1,58 @@
+---
+title: "Rho Model"
+author: "Jacob Tarnowski"
+date: "July 12, 2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+load("D:/REU Project/Phase 1/Master Alpha.Rdata")
+
+```
+
+```{r}
+model.RhoA <- lm(MLE_Alpha ~ (poly(Rho,8)*Theta) + (poly(Rho, 8)*n) + (poly(n,2)*Rho), df.Rho) 
+summary(model.RhoA)
+```
+```{r}
+model.RhoB<- lm(MLE_Beta ~  poly(Theta*Rho, 2) + log(Rho*Theta) + poly(log(n*Theta*Rho),4)+ sqrt(Theta) + (n*Theta*Rho) + (poly(Rho,6)*Theta) + (poly(Rho, 6)*n) + (poly(Rho, 6)*n), df.Rho) 
+summary(model.RhoB)
+```
+
+```{r}
+df.Rho <- df.Rho%>%
+  mutate("fita" = predict(model.RhoA))%>%
+  mutate("fitb" = predict(model.RhoB))
+df.Rho$fita[df.Rho$fita < 0]
+df.Rho$fitb[df.Rho$fitb < 0]
+
+save(df.Rho, file = "Master Model.Rdata")
+```
+
+```{r}
+{
+ma <- plot_ly(df.Rho, x = ~n, y = ~Theta, z = ~fita, color = ~Rho) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'n'),
+                     yaxis = list(title = 'Theta'),
+                     zaxis = list(title = 'Alpha')))
+ma}
+
+mb <- plot_ly(df.Rho, x = ~n, y = ~Theta, z = ~fitb, color = ~Rho) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'n'),
+                     yaxis = list(title = 'Theta'),
+                     zaxis = list(title = 'Beta')))
+mb
+
+
+
+a <- predict(model.RhoA, )
+
+ra <- add_trace(ma, data = df.Rho, x = ~n, y = ~Theta, z = ~, color = ~as.factor(Rho))
+```
+

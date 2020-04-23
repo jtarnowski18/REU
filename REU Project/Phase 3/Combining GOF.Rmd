@@ -1,0 +1,202 @@
+---
+title: "Combining GOF"
+author: "Jacob Tarnowski"
+date: "July 23, 2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Load Packages
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(stringr)
+library(EnvStats)
+```
+
+#Combine Chi-Square
+```{r}
+load("D:/REU Project/Phase 3/Master Model.Rdata")
+
+load("D:/REU Project/Phase 3/chisq gof_1.Rdata")
+quantiles.wide_1 <- quantiles.wide_1%>%
+  filter(fita > 0)
+load("D:/REU Project/Phase 3/chisq gof_2.Rdata")
+quantiles.wide_2 <- quantiles.wide_2%>%
+  filter(fita > 0)
+load("D:/REU Project/Phase 3/chisq gof_3.Rdata")
+quantiles.wide_3 <- quantiles.wide_3%>%
+  filter(fita > 0)
+load("D:/REU Project/Phase 3/chisq gof_4.Rdata")
+quantiles.wide_4 <- quantiles.wide_4%>%
+  filter(fita > 0)
+load("D:/REU Project/Phase 3/chisq gof_5.Rdata")
+quantiles.wide_5 <- quantiles.wide_5%>%
+  filter(fita > 0)
+load("D:/REU Project/Phase 3/chisq gof_6.Rdata")
+load("D:/REU Project/Phase 3/chisq gof_7.Rdata")
+load("D:/REU Project/Phase 3/chisq gof_8.Rdata")
+load("D:/REU Project/Phase 3/chisq gof_9.Rdata")
+names(quantiles.wide_8)[2]<- "Theta"
+df.Rho.8 <- df.Rho%>%
+  filter(Rho == .8)
+quantiles.wide_8 <- left_join(quantiles.wide_8, df.Rho.8)
+
+quantiles.wide_8 <- quantiles.wide_8%>%
+  filter(fita > 0)
+df.chi <- rbind(quantiles.wide_1, quantiles.wide_2, quantiles.wide_3,
+                quantiles.wide_4, quantiles.wide_5, quantiles.wide_6,
+                quantiles.wide_7, quantiles.wide_8, quantiles.wide_9)
+df.chi <- df.chi%>%
+  filter(fita > 0)%>%
+  select(n, Theta, Rho, `Chi-Squared`)
+save(df.chi, file = "Master ChiSq data.Rdata")
+
+```
+#Compare Relative Error
+```{r}
+load("D:/REU Project/Phase 3/compare_1.Rdata")
+load("D:/REU Project/Phase 3/compare_2.Rdata")
+load("D:/REU Project/Phase 3/compare_3.Rdata")
+load("D:/REU Project/Phase 3/compare_4.Rdata")
+load("D:/REU Project/Phase 3/compare_5.Rdata")
+load("D:/REU Project/Phase 3/compare_6.Rdata")
+load("D:/REU Project/Phase 3/compare_7.Rdata")
+names(compare)[2] <- "Theta"
+df.Rho.7 <- df.Rho%>%
+  filter(Rho == .7)
+compare_7 <- left_join(compare, df.Rho.7)
+load("C:/Users/jaket/OneDrive/Desktop/REU/Final Simulations/Simulation Programs/compare_8.Rdata")
+names(compare)[2] <- "Theta"
+compare_8 <- left_join(compare, df.Rho.8)
+load("D:/REU Project/Phase 3/compare_9.Rdata")
+df.rel <- rbind(compare_1, compare_2, compare_3,
+                compare_4, compare_5, compare_6,
+                compare_7, compare_8, compare_9)
+df.rel <- df.rel%>%
+  filter(fita > 0 & Relative.Error != "Inf")%>%
+  select(n, Theta, Rho, quantile,Relative.Error)
+save(df.rel, file = "Master Relative Error.Rdata")
+```
+
+#Graphs
+```{r}
+ggplot(quantiles.wide_1, aes(Theta, n )) +
+  geom_tile(aes(fill = `Chi-Squared`), color = "white")+
+  scale_fill_gradient2(low = "green", mid = "yellow", high = "red", limits = c(0, 2000), midpoint =  200) +
+  ylab("n") +
+  xlab(expression(theta)) +
+  theme(legend.title = element_text(size = 10),
+        legend.text = element_text(size = 12),
+        plot.title = element_text(size=16),
+        axis.title=element_text(size=14,face="bold"),
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = expression(chi^2))+
+  ggtitle(expression(chi^2 ~ `Heat Map Rho = .1`))+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(quantiles.wide_2, aes(Theta, n )) +
+  geom_tile(aes(fill = `Chi-Squared`), color = "white")+
+  scale_fill_gradient2(low = "green", mid = "yellow", high = "red", limits = c(0, 900), midpoint =  100) +
+  ylab("n") +
+  xlab(expression(theta)) +
+  theme(legend.title = element_text(size = 10),
+        legend.text = element_text(size = 12),
+        plot.title = element_text(size=16),
+        axis.title=element_text(size=14,face="bold"),
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = expression(chi^2))+
+  ggtitle(expression(chi^2 ~ `Heat Map Rho = .2`))+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(quantiles.wide_3, aes(Theta, n )) +
+  geom_tile(aes(fill = `Chi-Squared`), color = "white")+
+  scale_fill_gradient2(low = "green", mid = "yellow", high = "red", limits = c(0, 100), midpoint =  50) +
+  ylab("n") +
+  xlab(expression(theta)) +
+  theme(legend.title = element_text(size = 10),
+        legend.text = element_text(size = 12),
+        plot.title = element_text(size=16),
+        axis.title=element_text(size=14,face="bold"),
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = expression(chi^2))+
+  ggtitle(expression(chi^2 ~ `Heat Map Rho = .3`))+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(quantiles.wide_4, aes(Theta, n )) +
+  geom_tile(aes(fill = `Chi-Squared`), color = "white")+
+  scale_fill_gradient2(low = "green", mid = "yellow", high = "red", limits = c(0, 200), midpoint =  75) +
+  ylab("n") +
+  xlab(expression(theta)) +
+  theme(legend.title = element_text(size = 10),
+        legend.text = element_text(size = 12),
+        plot.title = element_text(size=16),
+        axis.title=element_text(size=14,face="bold"),
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = expression(chi^2))+
+  ggtitle(expression(chi^2 ~ `Heat Map Rho = .4`))+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(quantiles.wide_5, aes(Theta, n )) +
+  geom_tile(aes(fill = `Chi-Squared`), color = "white")+
+  scale_fill_gradient2(low = "green", mid = "yellow", high = "red", limits = c(0, 800), midpoint =  259) +
+  ylab("n") +
+  xlab(expression(theta)) +
+  theme(legend.title = element_text(size = 10),
+        legend.text = element_text(size = 12),
+        plot.title = element_text(size=16),
+        axis.title=element_text(size=14,face="bold"),
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = expression(chi^2))+
+  ggtitle(expression(chi^2 ~ `Heat Map Rho = .5`))+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(quantiles.wide_7, aes(Theta, n )) +
+  geom_tile(aes(fill = `Chi-Squared`), color = "white")+
+  scale_fill_gradient2(low = "green", mid = "yellow", high = "red", limits = c(0, max(quantiles.wide_7)), midpoint = 6000) +
+  ylab("n") +
+  xlab(expression(theta)) +
+  theme(legend.title = element_text(size = 10),
+        legend.text = element_text(size = 12),
+        plot.title = element_text(size=16),
+        axis.title=element_text(size=14,face="bold"),
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = expression(chi^2))+
+  ggtitle(expression(chi^2 ~ `Heat Map Rho = .7`))+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(quantiles.wide_8, aes(Theta, n )) +
+  geom_tile(aes(fill = `Chi-Squared`), color = "white")+
+  scale_fill_gradient2(low = "green", mid = "yellow", high = "red", limits = c(0, max(quantiles.wide_8)), midpoint = 6000) +
+  ylab("n") +
+  xlab(expression(theta)) +
+  theme(legend.title = element_text(size = 10),
+        legend.text = element_text(size = 12),
+        plot.title = element_text(size=16),
+        axis.title=element_text(size=14,face="bold"),
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = expression(chi^2))+
+  ggtitle(expression(chi^2 ~ `Heat Map Rho = .8`))+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(quantiles.wide_9, aes(Theta, n )) +
+  geom_tile(aes(fill = `Chi-Squared`), color = "white")+
+  scale_fill_gradient2(low = "green", mid = "yellow", high = "red", limits = c(0, max(quantiles.wide_9)), midpoint = 6000) +
+  ylab("n") +
+  xlab(expression(theta)) +
+  theme(legend.title = element_text(size = 10),
+        legend.text = element_text(size = 12),
+        plot.title = element_text(size=16),
+        axis.title=element_text(size=14,face="bold"),
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = expression(chi^2))+
+  ggtitle(expression(chi^2 ~ `Heat Map Rho = .9`))+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+

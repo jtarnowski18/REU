@@ -1,0 +1,97 @@
+---
+title: "Combining rhos"
+author: "Jacob Tarnowski"
+date: "July 11, 2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(plot3D)
+```
+
+```{r}
+load("D:/REU Project/Phase 1/Data/Alpha Beta_1_102030.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_2_102030.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_3_102030.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_4_102030.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_5_102030.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_6_102030.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_7_102030.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_9_102030.Rdata")
+
+load("D:/REU Project/Phase 1/Data/Alpha Beta_1_1525.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_2_1525.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_3_1525.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_4_1525.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_5_1525.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_6_1525.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_7_1525.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_9_1525.Rdata")
+
+load("D:/REU Project/Phase 1/Data/Alpha Beta_1_3540.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_2_3540.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_3_3540.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_4_3540.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_5_3540.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_6_3540.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_7_3540.Rdata")
+load("D:/REU Project/Phase 1/Data/Alpha Beta_9_3540.Rdata")
+
+load("C:/Users/jaket/OneDrive/Desktop/REU/MLE/MLE data1.Rdata")
+df.ab$Rho <- .8
+```
+
+```{r}
+df.Rho <- bind_rows(df.ab, df.ab.1.102030, df.ab.2.102030, df.ab.3.102030,
+                df.ab.4.102030, df.ab.5.102030, df.ab.6.102030, df.ab.7.102030,
+                df.ab.9.102030, df.ab.1.1525, df.ab.2.1525, df.ab.3.1525,
+                df.ab.4.1525, df.ab.5.1525, df.ab.6.1525, df.ab.7.1525,
+                df.ab.9.1525, df.ab.1.3540, df.ab.2.3540, df.ab.3.3540,
+                df.ab.4.3540, df.ab.5.3540, df.ab.6.3540, df.ab.7.3540,
+                df.ab.9.3540)
+
+df.Rho <- df.Rho %>%
+  arrange(Rho, n, Theta)
+
+save(df.Rho, file = "Master Alpha.Rdata")
+```
+
+```{r}
+x <- df.Rho$Theta
+z <- df.Rho$MLE_Alpha
+y <- df.Rho$n
+c <- as.factor(df.Rho$Rho)
+scatter3D(x, y, z, phi = 0, bty = "g",  type = "h", 
+           ticktype = "detailed", pch = 19, cex = 0.5,
+          col.var = as.integer(c),
+          col = c("navy", "dodgerblue2", "cyan", "green", "yellow", "orange", "orangered1", "orangered4"))
+```
+
+```{r}
+require(rgl)
+df.Rho$Rho <- as.factor(df.Rho$Rho)
+plot3d(df.Rho$n,df.Rho$Theta, df.Rho$MLE_Alpha, col = as.numeric(df.Rho$Rho))
+```
+
+
+
+```{r}
+x <- sep.l <- iris$Sepal.Length
+y <- pet.l <- iris$Petal.Length
+z <- sep.w <- iris$Sepal.Width
+scatter3D(x, y, z, bty = "g", pch = 18, type = "h",
+          col.var = as.integer(iris$Species), 
+          col = c("#1B9E77", "#D95F02", "#7570B3"))
+class(iris$Species)
+{
+str(iris)
+str(df.Rho)
+}
+```
+
+```{r
+```
+
+

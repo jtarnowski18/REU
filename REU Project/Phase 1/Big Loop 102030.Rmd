@@ -1,0 +1,806 @@
+---
+title: "Big Loop 10 20 30"
+author: "Jacob Tarnowski"
+date: "July 8, 2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Load Packages
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(EnvStats)
+```
+
+#Parameters of the simulation
+```{r}
+mu = 0
+sd = 1
+rho = .9
+num_of_sims = 10000
+num_of_ab = 400
+```
+
+#Creation of Dataframes
+```{r}
+mat_nt <- matrix(NA, ncol = 24, nrow = num_of_sims)
+df_nt <- as.data.frame(mat_nt)
+df_nt <- df_nt %>%
+  select(V1 : V24)
+names(df_nt)[1]<- "n10theta.05"
+names(df_nt)[2]<- "n10theta.1"
+names(df_nt)[3]<- "n10theta.15"
+names(df_nt)[4]<- "n10theta.2"
+names(df_nt)[5]<- "n10theta.25"
+names(df_nt)[6]<- "n10theta.3"
+names(df_nt)[7]<- "n10theta.35"
+names(df_nt)[8]<- "n10theta.4"
+names(df_nt)[9]<- "n20theta.05"
+names(df_nt)[10]<- "n20theta.1"
+names(df_nt)[11]<- "n20theta.15"
+names(df_nt)[12]<- "n20theta.2"
+names(df_nt)[13]<- "n20theta.25"
+names(df_nt)[14]<- "n20theta.3"
+names(df_nt)[15]<- "n20theta.35"
+names(df_nt)[16]<- "n20theta.4"
+names(df_nt)[17]<- "n30theta.05"
+names(df_nt)[18]<- "n30theta.1"
+names(df_nt)[19]<- "n30theta.15"
+names(df_nt)[20]<- "n30theta.2"
+names(df_nt)[21]<- "n30theta.25"
+names(df_nt)[22]<- "n30theta.3"
+names(df_nt)[23]<- "n30theta.35"
+names(df_nt)[24]<- "n30theta.4"
+
+df <- matrix(NA, ncol = 48, nrow = num_of_ab)
+df <- as.data.frame(df)
+df_RV <- df %>%
+  select(V1:V48)
+
+names(df_RV)[1]<- "n10theta.05A"
+names(df_RV)[2]<- "n10theta.1A"
+names(df_RV)[3]<- "n10theta.15A"
+names(df_RV)[4]<- "n10theta.2A"
+names(df_RV)[5]<- "n10theta.25A"
+names(df_RV)[6]<- "n10theta.3A"
+names(df_RV)[7]<- "n10theta.35A"
+names(df_RV)[8]<- "n10theta.4A"
+names(df_RV)[9]<- "n20theta.05A"
+names(df_RV)[10]<- "n20theta.1A"
+names(df_RV)[11]<- "n20theta.15A"
+names(df_RV)[12]<- "n20theta.2A"
+names(df_RV)[13]<- "n20theta.25A"
+names(df_RV)[14]<- "n20theta.3A"
+names(df_RV)[15]<- "n20theta.35A"
+names(df_RV)[16]<- "n20theta.4A"
+names(df_RV)[17]<- "n30theta.05A"
+names(df_RV)[18]<- "n30theta.1A"
+names(df_RV)[19]<- "n30theta.15A"
+names(df_RV)[20]<- "n30theta.2A"
+names(df_RV)[21]<- "n30theta.25A"
+names(df_RV)[22]<- "n30theta.3A"
+names(df_RV)[23]<- "n30theta.35A"
+names(df_RV)[24]<- "n30theta.4A"
+names(df_RV)[25]<- "n10theta.05B"
+names(df_RV)[26]<- "n10theta.1B"
+names(df_RV)[27]<- "n10theta.15B"
+names(df_RV)[28]<- "n10theta.2B"
+names(df_RV)[29]<- "n10theta.25B"
+names(df_RV)[30]<- "n10theta.3B"
+names(df_RV)[31]<- "n10theta.35B"
+names(df_RV)[32]<- "n10theta.4B"
+names(df_RV)[33]<- "n20theta.05B"
+names(df_RV)[34]<- "n20theta.1B"
+names(df_RV)[35]<- "n20theta.15B"
+names(df_RV)[36]<- "n20theta.2B"
+names(df_RV)[37]<- "n20theta.25B"
+names(df_RV)[38]<- "n20theta.3B"
+names(df_RV)[39]<- "n20theta.35B"
+names(df_RV)[40]<- "n20theta.4B"
+names(df_RV)[41]<- "n30theta.05B"
+names(df_RV)[42]<- "n30theta.1B"
+names(df_RV)[43]<- "n30theta.15B"
+names(df_RV)[44]<- "n30theta.2B"
+names(df_RV)[45]<- "n30theta.25B"
+names(df_RV)[46]<- "n30theta.3B"
+names(df_RV)[47]<- "n30theta.35B"
+names(df_RV)[48]<- "n30theta.4B"
+```
+
+
+
+
+
+
+#For Loop
+```{r}
+for (h in 119:num_of_ab) {
+  for (i in 1:num_of_sims) {
+#n = 10 theta = .05
+x95 <- rnorm(10, mu, sd)
+z95 <- rnorm(10, mu, sd)
+xz95 <- cbind(x95, z95)
+xz95 <- as.data.frame(xz95)
+xz95$y95 <- rho * xz95$x95 + (1 - (rho)^2) * xz95$z95
+
+xy95 <- xz95 %>%
+  filter(x95 <= qnorm(.95))
+
+r95 <- cor(xy95$x95, xy95$y95)
+df_nt$n10theta.05[i] <- abs(r95)
+
+#n = 10 theta = .1
+x90 <- rnorm(10, mu, sd)
+z90 <- rnorm(10, mu, sd)
+xz90 <- cbind(x90, z90)
+xz90 <- as.data.frame(xz90)
+xz90$y90 <- rho * xz90$x90 + (1 - (rho)^2) * xz90$z90
+
+
+xy90 <- xz90 %>%
+  filter(x90 <= qnorm(.90))
+
+r90 <- cor(xy90$x90, xy90$y90)
+df_nt$n10theta.1[i] <- abs(r90)
+
+#n = 10 theta = .15
+x85 <- rnorm(10, mu, sd)
+z85 <- rnorm(10, mu, sd)
+xz85 <- cbind(x85, z85)
+xz85 <- as.data.frame(xz85)
+xz85$y85 <- rho * xz85$x85 + (1 - (rho)^2) * xz85$z85
+  
+
+xy85 <- xz85 %>%
+  filter(x85 <= qnorm(.85))
+
+r85 <- cor(xy85$x85, xy85$y85)
+df_nt$n10theta.15[i] <- abs(r85)
+
+#n = 10 theta = .2
+x80 <- rnorm(10, mu, sd)
+z80 <- rnorm(10, mu, sd)
+xz80 <- cbind(x80, z80)
+xz80 <- as.data.frame(xz80)
+xz80$y80 <- rho * xz80$x80 + (1 - (rho)^2) * xz80$z80
+  
+
+xy80 <- xz80%>%
+  filter(x80 <= qnorm(.8))
+
+r80 <- cor(xy80$x80, xy80$y80)
+df_nt$n10theta.2[i] <- abs(r80)
+
+#n = 10 theta = .25
+x75 <- rnorm(10, mu, sd)
+z75 <- rnorm(10, mu, sd)
+xz75 <- cbind(x75, z75)
+xz75 <- as.data.frame(xz75)
+xz75$y75 <- rho * xz75$x75 + (1 - (rho)^2) * xz75$z75
+  
+
+xy75 <- xz75 %>%
+  filter(x75 <= qnorm(.75))
+
+r75 <- cor(xy75$x75, xy75$y75)
+df_nt$n10theta.25[i] <- abs(r75)
+
+#n = 10 theta = .3
+x70 <- rnorm(10, mu, sd)
+z70 <- rnorm(10, mu, sd)
+xz70 <- cbind(x70, z70)
+xz70 <- as.data.frame(xz70)
+xz70$y70 <- rho * xz70$x70 + (1 - (rho)^2) * xz70$z70
+  
+
+xy70 <- xz70 %>%
+  filter(x70 <= qnorm(.70))
+
+r70 <- cor(xy70$x70, xy70$y70)
+df_nt$n10theta.3[i] <- abs(r70)
+
+#n = 10 theta = .35
+x65 <- rnorm(10, mu, sd)
+z65 <- rnorm(10, mu, sd)
+xz65 <- cbind(x65, z65)
+xz65 <- as.data.frame(xz65)
+xz65$y65 <- rho * xz65$x65 + (1 - (rho)^2) * xz65$z65
+
+xy65 <- xz65 %>%
+  filter(x65 <= qnorm(.65))
+
+r65 <- cor(xy65$x65, xy65$y65)
+df_nt$n10theta.35[i] <- abs(r65)
+
+#n = 10 theta = .4
+x60 <- rnorm(10, mu, sd)
+z60 <- rnorm(10, mu, sd)
+xz60 <- cbind(x60, z60)
+xz60 <- as.data.frame(xz60)
+xz60$y60 <- rho * xz60$x60 + (1 - (rho)^2) * xz60$z60
+  
+
+xy60 <- xz60 %>%
+  filter(x60 <= qnorm(.60))
+
+r60 <- cor(xy60$x60, xy60$y60)
+ df_nt$n10theta.4[i] <- abs(r60)
+
+#n = 20 theta = .05
+x95 <- rnorm(20, mu, sd)
+z95 <- rnorm(20, mu, sd)
+xz95 <- cbind(x95, z95)
+xz95 <- as.data.frame(xz95)
+xz95$y95 <- rho * xz95$x95 + (1 - (rho)^2) * xz95$z95
+
+xy95 <- xz95 %>%
+  filter(x95 <= qnorm(.95))
+
+r95 <- cor(xy95$x95, xy95$y95)
+df_nt$n20theta.05[i] <- abs(r95)
+
+#n = 20 theta = .1
+x90 <- rnorm(20, mu, sd)
+z90 <- rnorm(20, mu, sd)
+xz90 <- cbind(x90, z90)
+xz90 <- as.data.frame(xz90)
+xz90$y90 <- rho * xz90$x90 + (1 - (rho)^2) * xz90$z90
+  
+
+xy90 <- xz90 %>%
+  filter(x90 <= qnorm(.90))
+
+r90 <- cor(xy90$x90, xy90$y90)
+df_nt$n20theta.1[i] <- abs(r90)
+
+#n = 20 theta = .15
+x85 <- rnorm(20, mu, sd)
+z85 <- rnorm(20, mu, sd)
+xz85 <- cbind(x85, z85)
+xz85 <- as.data.frame(xz85)
+xz85$y85 <- rho * xz85$x85 + (1 - (rho)^2) * xz85$z85
+  
+
+xy85 <- xz85 %>%
+  filter(x85 <= qnorm(.85))
+
+r85 <- cor(xy85$x85, xy85$y85)
+df_nt$n20theta.15[i] <- abs(r85)
+
+#n = 20 theta = .2
+x80 <- rnorm(20, mu, sd)
+z80 <- rnorm(20, mu, sd)
+xz80 <- cbind(x80, z80)
+xz80 <- as.data.frame(xz80)
+xz80$y80 <- rho * xz80$x80 + (1 - (rho)^2) * xz80$z80
+  
+
+xy80 <- xz80%>%
+  filter(x80 <= qnorm(.8))
+
+r80 <- cor(xy80$x80, xy80$y80)
+df_nt$n20theta.2[i] <- abs(r80)
+
+#n = 20 theta = .25
+x75 <- rnorm(20, mu, sd)
+z75 <- rnorm(20, mu, sd)
+xz75 <- cbind(x75, z75)
+xz75 <- as.data.frame(xz75)
+xz75$y75 <- rho * xz75$x75 + (1 - (rho)^2) * xz75$z75
+  
+
+xy75 <- xz75 %>%
+  filter(x75 <= qnorm(.75))
+
+r75 <- cor(xy75$x75, xy75$y75)
+df_nt$n20theta.25[i] <- abs(r75)
+
+#n = 20 theta = .3
+x70 <- rnorm(20, mu, sd)
+z70 <- rnorm(20, mu, sd)
+xz70 <- cbind(x70, z70)
+xz70 <- as.data.frame(xz70)
+xz70$y70 <- rho * xz70$x70 + (1 - (rho)^2) * xz70$z70
+  
+
+xy70 <- xz70 %>%
+  filter(x70 <= qnorm(.70))
+
+r70 <- cor(xy70$x70, xy70$y70)
+df_nt$n20theta.3[i] <- abs(r70)
+
+#n = 20 theta = .35
+x65 <- rnorm(20, mu, sd)
+z65 <- rnorm(20, mu, sd)
+xz65 <- cbind(x65, z65)
+xz65 <- as.data.frame(xz65)
+xz65$y65 <- rho * xz65$x65 + (1 - (rho)^2) * xz65$z65
+
+xy65 <- xz65 %>%
+  filter(x65 <= qnorm(.65))
+
+r65 <- cor(xy65$x65, xy65$y65)
+df_nt$n20theta.35[i] <- abs(r65)
+
+#n = 20 theta = .4
+x60 <- rnorm(20, mu, sd)
+z60 <- rnorm(20, mu, sd)
+xz60 <- cbind(x60, z60)
+xz60 <- as.data.frame(xz60)
+xz60$y60 <- rho * xz60$x60 + (1 - (rho)^2) * xz60$z60
+  
+
+xy60 <- xz60 %>%
+  filter(x60 <= qnorm(.60))
+
+r60 <- cor(xy60$x60, xy60$y60)
+df_nt$n20theta.4[i] <- abs(r60)
+
+#n = 30 theta = .05
+x95 <- rnorm(30, mu, sd)
+z95 <- rnorm(30, mu, sd)
+xz95 <- cbind(x95, z95)
+xz95 <- as.data.frame(xz95)
+xz95$y95 <- rho * xz95$x95 + (1 - (rho)^2) * xz95$z95
+
+
+xy95 <- xz95 %>%
+  filter(x95 <= qnorm(.95))
+
+r95 <- cor(xy95$x95, xy95$y95)
+df_nt$n30theta.05[i] <- abs(r95)
+
+#n = 30 theta = .1
+x90 <- rnorm(30, mu, sd)
+z90 <- rnorm(30, mu, sd)
+xz90 <- cbind(x90, z90)
+xz90 <- as.data.frame(xz90)
+xz90$y90 <- rho * xz90$x90 + (1 - (rho)^2) * xz90$z90
+
+xy90 <- xz90 %>%
+  filter(x90 <= qnorm(.90))
+
+r90 <- cor(xy90$x90, xy90$y90)
+df_nt$n30theta.1[i] <- abs(r90)
+
+#n = 30 theta = .15
+x85 <- rnorm(30, mu, sd)
+z85 <- rnorm(30, mu, sd)
+xz85 <- cbind(x85, z85)
+xz85 <- as.data.frame(xz85)
+xz85$y85 <- rho * xz85$x85 + (1 - (rho)^2) * xz85$z85
+  
+xy85 <- xz85 %>%
+  filter(x85 <= qnorm(.85))
+
+r85 <- cor(xy85$x85, xy85$y85)
+df_nt$n30theta.15[i] <- abs(r85)
+
+#n = 30 theta = .2
+x80 <- rnorm(30, mu, sd)
+z80 <- rnorm(30, mu, sd)
+xz80 <- cbind(x80, z80)
+xz80 <- as.data.frame(xz80)
+xz80$y80 <- rho * xz80$x80 + (1 - (rho)^2) * xz80$z80
+  
+
+xy80 <- xz80%>%
+  filter(x80 <= qnorm(.8))
+
+r80 <- cor(xy80$x80, xy80$y80)
+df_nt$n30theta.2[i] <- abs(r80)
+
+#n = 30 theta = .25
+x75 <- rnorm(30, mu, sd)
+z75 <- rnorm(30, mu, sd)
+xz75 <- cbind(x75, z75)
+xz75 <- as.data.frame(xz75)
+xz75$y75 <- rho * xz75$x75 + (1 - (rho)^2) * xz75$z75
+  
+
+xy75 <- xz75 %>%
+  filter(x75 <= qnorm(.75))
+
+r75 <- cor(xy75$x75, xy75$y75)
+df_nt$n30theta.25[i] <- abs(r75)
+
+#n = 30 theta = .3
+x70 <- rnorm(30, mu, sd)
+z70 <- rnorm(30, mu, sd)
+xz70 <- cbind(x70, z70)
+xz70 <- as.data.frame(xz70)
+xz70$y70 <- rho * xz70$x70 + (1 - (rho)^2) * xz70$z70
+  
+
+xy70 <- xz70 %>%
+  filter(x70 <= qnorm(.70))
+
+r70 <- cor(xy70$x70, xy70$y70)
+df_nt$n30theta.3[i] <- abs(r70)
+
+#n = 30 theta = .35
+x65 <- rnorm(30, mu, sd)
+z65 <- rnorm(30, mu, sd)
+xz65 <- cbind(x65, z65)
+xz65 <- as.data.frame(xz65)
+xz65$y65 <- rho * xz65$x65 + (1 - (rho)^2) * xz65$z65
+
+xy65 <- xz65 %>%
+  filter(x65 <= qnorm(.65))
+
+r65 <- cor(xy65$x65, xy65$y65)
+df_nt$n30theta.35[i] <- abs(r65)
+
+#n = 30 theta = .4
+x60 <- rnorm(30, mu, sd)
+z60 <- rnorm(30, mu, sd)
+xz60 <- cbind(x60, z60)
+xz60 <- as.data.frame(xz60)
+xz60$y60 <- rho * xz60$x60 + (1 - (rho)^2) * xz60$z60
+  
+
+xy60 <- xz60 %>%
+  filter(x60 <= qnorm(.60))
+
+r60 <- cor(xy60$x60, xy60$y60)
+df_nt$n30theta.4[i] <- abs(r60)
+  }
+   #n = 10 theta = .05
+  bet.a <- ebeta(df_nt$n10theta.05)
+  df_RV$n10theta.05A[h] <- bet.a$parameters[[1]]
+  df_RV$n10theta.05B[h] <- bet.a$parameters[[2]]
+ 
+  #n = 10 theta = .1
+  bet.a <- ebeta(df_nt$n10theta.1)
+  df_RV$n10theta.1A[h] <- bet.a$parameters[[1]]
+  df_RV$n10theta.1B[h] <- bet.a$parameters[[2]]
+
+  #n = 10 theta = .15
+  bet.a <- ebeta(df_nt$n10theta.15)
+  df_RV$n10theta.15A[h] <- bet.a$parameters[[1]]
+  df_RV$n10theta.15B[h] <- bet.a$parameters[[2]]
+  
+   #n = 10 theta = .2
+  bet.a <- ebeta(df_nt$n10theta.2)
+  df_RV$n10theta.2A[h] <- bet.a$parameters[[1]]
+  df_RV$n10theta.2B[h] <- bet.a$parameters[[2]]
+  
+  #n = 10 theta = .25
+  bet.a <- ebeta(df_nt$n10theta.25)
+  df_RV$n10theta.25A[h] <- bet.a$parameters[[1]]
+  df_RV$n10theta.25B[h] <- bet.a$parameters[[2]]
+  
+  #n = 10 theta = .3
+  bet.a <- ebeta(df_nt$n10theta.3)
+  df_RV$n10theta.3A[h] <- bet.a$parameters[[1]]
+  df_RV$n10theta.3B[h] <- bet.a$parameters[[2]]
+  
+  #n = 10 theta = .35
+  bet.a <- ebeta(df_nt$n10theta.35)
+  df_RV$n10theta.35A[h] <- bet.a$parameters[[1]]
+  df_RV$n10theta.35B[h] <- bet.a$parameters[[2]]
+  
+  #n = 10 theta = .4
+  bet.a <- ebeta(df_nt$n10theta.4)
+  df_RV$n10theta.4A[h] <- bet.a$parameters[[1]]
+  df_RV$n10theta.4B[h] <- bet.a$parameters[[2]]
+  
+  #n = 20 theta = .05
+  bet.a <- ebeta(df_nt$n20theta.05)
+  df_RV$n20theta.05A[h] <- bet.a$parameters[[1]]
+  df_RV$n20theta.05B[h] <- bet.a$parameters[[2]]
+ 
+  #n = 20 theta = .1
+  bet.a <- ebeta(df_nt$n20theta.1)
+  df_RV$n20theta.1A[h] <- bet.a$parameters[[1]]
+  df_RV$n20theta.1B[h] <- bet.a$parameters[[2]]
+
+  #n = 20 theta = .15
+  bet.a <- ebeta(df_nt$n20theta.15)
+  df_RV$n20theta.15A[h] <- bet.a$parameters[[1]]
+  df_RV$n20theta.15B[h] <- bet.a$parameters[[2]]
+  
+   #n = 20 theta = .2
+  bet.a <- ebeta(df_nt$n20theta.2)
+  df_RV$n20theta.2A[h] <- bet.a$parameters[[1]]
+  df_RV$n20theta.2B[h] <- bet.a$parameters[[2]]
+  
+  #n = 20 theta = .25
+  bet.a <- ebeta(df_nt$n20theta.25)
+  df_RV$n20theta.25A[h] <- bet.a$parameters[[1]]
+  df_RV$n20theta.25B[h] <- bet.a$parameters[[2]]
+  
+  #n = 20 theta = .3
+  bet.a <- ebeta(df_nt$n20theta.3)
+  df_RV$n20theta.3A[h] <- bet.a$parameters[[1]]
+  df_RV$n20theta.3B[h] <- bet.a$parameters[[2]]
+  
+  #n = 20 theta = .35
+  bet.a <- ebeta(df_nt$n20theta.35)
+  df_RV$n20theta.35A[h] <- bet.a$parameters[[1]]
+  df_RV$n20theta.35B[h] <- bet.a$parameters[[2]]
+  
+  #n = 20 theta = .4
+  bet.a <- ebeta(df_nt$n20theta.4)
+  df_RV$n20theta.4A[h] <- bet.a$parameters[[1]]
+  df_RV$n20theta.4B[h] <- bet.a$parameters[[2]]
+  
+  #n = 30 theta = .05
+  bet.a <- ebeta(df_nt$n30theta.05)
+  df_RV$n30theta.05A[h] <- bet.a$parameters[[1]]
+  df_RV$n30theta.05B[h] <- bet.a$parameters[[2]]
+ 
+  #n = 30 theta = .1
+  bet.a <- ebeta(df_nt$n30theta.1)
+  df_RV$n30theta.1A[h] <- bet.a$parameters[[1]]
+  df_RV$n30theta.1B[h] <- bet.a$parameters[[2]]
+
+  #n = 30 theta = .15
+  bet.a <- ebeta(df_nt$n30theta.15)
+  df_RV$n30theta.15A[h] <- bet.a$parameters[[1]]
+  df_RV$n30theta.15B[h] <- bet.a$parameters[[2]]
+  
+   #n = 30 theta = .2
+  bet.a <- ebeta(df_nt$n30theta.2)
+  df_RV$n30theta.2A[h] <- bet.a$parameters[[1]]
+  df_RV$n30theta.2B[h] <- bet.a$parameters[[2]]
+  
+  #n = 30 theta = .25
+  bet.a <- ebeta(df_nt$n30theta.25)
+  df_RV$n30theta.25A[h] <- bet.a$parameters[[1]]
+  df_RV$n30theta.25B[h] <- bet.a$parameters[[2]]
+  
+  #n = 30 theta = .3
+  bet.a <- ebeta(df_nt$n30theta.3)
+  df_RV$n30theta.3A[h] <- bet.a$parameters[[1]]
+  df_RV$n30theta.3B[h] <- bet.a$parameters[[2]]
+  
+  #n = 30 theta = .35
+  bet.a <- ebeta(df_nt$n30theta.35)
+  df_RV$n30theta.35A[h] <- bet.a$parameters[[1]]
+  df_RV$n30theta.35B[h] <- bet.a$parameters[[2]]
+  
+  #n = 30 theta = .4
+  bet.a <- ebeta(df_nt$n30theta.4)
+  df_RV$n30theta.4A[h] <- bet.a$parameters[[1]]
+  df_RV$n30theta.4B[h] <- bet.a$parameters[[2]]
+}
+```
+
+
+#Wide to Long Data
+```{r}
+# n = 10 theta = .05
+df.long10.05 <- df_RV %>%
+  select(n10theta.05A, n10theta.05B)%>%
+  mutate("n" = 10)%>%
+  mutate("Theta" = .05)
+names(df.long10.05)[1] <- "MLE_Alpha"
+names(df.long10.05)[2] <- "MLE_Beta"
+
+# n = 10 theta = .1
+df.long10.1 <- df_RV %>%
+  select(n10theta.1A, n10theta.1B)%>%
+  mutate("n" = 10)%>%
+  mutate("Theta" = .1)
+names(df.long10.1)[1] <- "MLE_Alpha"
+names(df.long10.1)[2] <- "MLE_Beta"
+
+# n = 10 theta = .15
+df.long10.15 <- df_RV %>%
+  select(n10theta.15A, n10theta.15B)%>%
+  mutate("n" = 10)%>%
+  mutate("Theta" = .15)
+names(df.long10.15)[1] <- "MLE_Alpha"
+names(df.long10.15)[2] <- "MLE_Beta"
+
+# n = 10 theta = .2
+df.long10.2 <- df_RV %>%
+  select(n10theta.2A, n10theta.2B)%>%
+  mutate("n" = 10)%>%
+  mutate("Theta" = .2)
+names(df.long10.2)[1] <- "MLE_Alpha"
+names(df.long10.2)[2] <- "MLE_Beta"
+
+# n = 10 theta = .25
+df.long10.25 <- df_RV %>%
+  select(n10theta.25A, n10theta.25B)%>%
+  mutate("n" = 10)%>%
+  mutate("Theta" = .25)
+names(df.long10.25)[1] <- "MLE_Alpha"
+names(df.long10.25)[2] <- "MLE_Beta"
+
+# n = 10 theta = .3
+df.long10.3 <- df_RV %>%
+  select(n10theta.3A, n10theta.3B)%>%
+  mutate("n" = 10)%>%
+  mutate("Theta" = .3)
+names(df.long10.3)[1] <- "MLE_Alpha"
+names(df.long10.3)[2] <- "MLE_Beta"
+
+# n = 10 theta = .35
+df.long10.35 <- df_RV %>%
+  select(n10theta.35A, n10theta.35B)%>%
+  mutate("n" = 10)%>%
+  mutate("Theta" = .35)
+names(df.long10.35)[1] <- "MLE_Alpha"
+names(df.long10.35)[2] <- "MLE_Beta"
+
+# n = 10 theta = .4
+df.long10.4 <- df_RV %>%
+  select(n10theta.4A, n10theta.4B)%>%
+  mutate("n" = 10)%>%
+  mutate("Theta" = .4)
+names(df.long10.4)[1] <- "MLE_Alpha"
+names(df.long10.4)[2] <- "MLE_Beta"
+
+# n = 20 theta = .05
+df.long20.05 <- df_RV %>%
+  select(n20theta.05A, n20theta.05B)%>%
+  mutate("n" = 20)%>%
+  mutate("Theta" = .05)
+names(df.long20.05)[1] <- "MLE_Alpha"
+names(df.long20.05)[2] <- "MLE_Beta"
+
+# n = 20 theta = .1
+df.long20.1 <- df_RV %>%
+  select(n20theta.1A, n20theta.1B)%>%
+  mutate("n" = 20)%>%
+  mutate("Theta" = .1)
+names(df.long20.1)[1] <- "MLE_Alpha"
+names(df.long20.1)[2] <- "MLE_Beta"
+
+# n = 20 theta = .15
+df.long20.15 <- df_RV %>%
+  select(n20theta.15A, n20theta.15B)%>%
+  mutate("n" = 20)%>%
+  mutate("Theta" = .15)
+names(df.long20.15)[1] <- "MLE_Alpha"
+names(df.long20.15)[2] <- "MLE_Beta"
+
+# n = 20 theta = .2
+df.long20.2 <- df_RV %>%
+  select(n20theta.2A, n20theta.2B)%>%
+  mutate("n" = 20)%>%
+  mutate("Theta" = .2)
+names(df.long20.2)[1] <- "MLE_Alpha"
+names(df.long20.2)[2] <- "MLE_Beta"
+
+# n = 20 theta = .25
+df.long20.25 <- df_RV %>%
+  select(n20theta.25A, n20theta.25B)%>%
+  mutate("n" = 20)%>%
+  mutate("Theta" = .25)
+names(df.long20.25)[1] <- "MLE_Alpha"
+names(df.long20.25)[2] <- "MLE_Beta"
+
+# n = 20 theta = .3
+df.long20.3 <- df_RV %>%
+  select(n20theta.3A, n20theta.3B)%>%
+  mutate("n" = 20)%>%
+  mutate("Theta" = .3)
+names(df.long20.3)[1] <- "MLE_Alpha"
+names(df.long20.3)[2] <- "MLE_Beta"
+
+# n = 20 theta = .35
+df.long20.35 <- df_RV %>%
+  select(n20theta.35A, n20theta.35B)%>%
+  mutate("n" = 20)%>%
+  mutate("Theta" = .35)
+names(df.long20.35)[1] <- "MLE_Alpha"
+names(df.long20.35)[2] <- "MLE_Beta"
+
+# n = 20 theta = .4
+df.long20.4 <- df_RV %>%
+  select( n20theta.4A, n20theta.4B)%>%
+  mutate("n" = 20)%>%
+  mutate("Theta" = .4)
+names(df.long20.4)[1] <- "MLE_Alpha"
+names(df.long20.4)[2] <- "MLE_Beta"
+
+# n = 30 theta = .05
+df.long30.05 <- df_RV %>%
+  select(n30theta.05A, n30theta.05B)%>%
+  mutate("n" = 30)%>%
+  mutate("Theta" = .05)
+names(df.long30.05)[1] <- "MLE_Alpha"
+names(df.long30.05)[2] <- "MLE_Beta"
+
+# n = 30 theta = .1
+df.long30.1 <- df_RV %>%
+  select( n30theta.1A, n30theta.1B)%>%
+  mutate("n" = 30)%>%
+  mutate("Theta" = .1)
+names(df.long30.1)[1] <- "MLE_Alpha"
+names(df.long30.1)[2] <- "MLE_Beta"
+
+# n = 30 theta = .15
+df.long30.15 <- df_RV %>%
+  select( n30theta.15A, n30theta.15B)%>%
+  mutate("n" = 30)%>%
+  mutate("Theta" = .15)
+names(df.long30.15)[1] <- "MLE_Alpha"
+names(df.long30.15)[2] <- "MLE_Beta"
+
+# n = 30 theta = .2
+df.long30.2 <- df_RV %>%
+  select(n30theta.2A, n30theta.2B)%>%
+  mutate("n" = 30)%>%
+  mutate("Theta" = .2)
+names(df.long30.2)[1] <- "MLE_Alpha"
+names(df.long30.2)[2] <- "MLE_Beta"
+
+# n = 30 theta = .25
+df.long30.25 <- df_RV %>%
+  select(n30theta.25A, n30theta.25B)%>%
+  mutate("n" = 30)%>%
+  mutate("Theta" = .25)
+names(df.long30.25)[1] <- "MLE_Alpha"
+names(df.long30.25)[2] <- "MLE_Beta"
+
+# n = 30 theta = .3
+df.long30.3 <- df_RV %>%
+  select(n30theta.3A, n30theta.3B)%>%
+  mutate("n" = 30)%>%
+  mutate("Theta" = .3)
+names(df.long30.3)[1] <- "MLE_Alpha"
+names(df.long30.3)[2] <- "MLE_Beta"
+
+# n = 30 theta = .35
+df.long30.35 <- df_RV %>%
+  select(n30theta.35A, n30theta.35B)%>%
+  mutate("n" = 30)%>%
+  mutate("Theta" = .35)
+names(df.long30.35)[1] <- "MLE_Alpha"
+names(df.long30.35)[2] <- "MLE_Beta"
+
+# n = 30 theta = .4
+df.long30.4 <- df_RV %>%
+  select(n30theta.4A, n30theta.4B)%>%
+  mutate("n" = 30)%>%
+  mutate("Theta" = .4)
+names(df.long30.4)[1] <- "MLE_Alpha"
+names(df.long30.4)[2] <- "MLE_Beta"
+
+df_RV <- rbind(df.long10.05, df.long10.1, df.long10.15,
+               df.long10.2, df.long10.25, df.long10.3,
+               df.long10.35, df.long10.4, df.long20.05,
+               df.long20.1, df.long20.15, df.long20.2,
+               df.long20.25, df.long20.3, df.long20.35,
+               df.long20.4, df.long30.05, df.long30.1,
+               df.long30.15, df.long30.2, df.long30.25,
+               df.long30.3, df.long30.35, df.long30.4)
+```
+
+
+
+```{r}
+df_RV$MLE_Beta <- unlist(df_RV$MLE_Beta)
+df.alpha <- df_RV %>%
+  group_by(n,Theta)%>%
+  summarise("MLE_Alpha" = mean(MLE_Alpha))
+
+ggplot(df.alpha, aes(x = as.factor(Theta), y = MLE_Alpha, color = as.factor(n))) + 
+    geom_point(size = 2, shape = 8)
+
+df.beta <- df_RV %>%
+  group_by(n,Theta)%>%
+  summarise("MLE_Beta" = mean(MLE_Beta))
+
+ggplot(df.beta, aes(x = as.factor(Theta), y = MLE_Beta, color = as.factor(n))) + 
+    geom_point(size = 2, shape = 8)
+
+df.ab.9.102030 <- left_join(df.alpha,df.beta, by = c("n", "Theta"))
+```
+
+```{r}
+save(df.ab.9.102030, file = "Alpha Beta_9_102030.Rdata")
+```
+
+
+

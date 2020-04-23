@@ -1,0 +1,3004 @@
+---
+title: "Quartile Loop n = 15 n = 25"
+author: "Jacob Tarnowski"
+date: "June 13, 2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Load Packages
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(EnvStats)
+```
+
+#Load in MME Data
+```{r}
+load("")
+df.Rho <- df.Rho%>%
+  filter(Rho ==.8)
+```
+
+
+#Parameters of the simulation
+```{r}
+mu = 0
+sd = 1
+rho = .8
+num_of_sims = 10000
+num_of_ab = 400
+```
+
+#Create Dataframes
+```{r}
+n <- c(rep(10, num_of_ab * 8), rep(15, num_of_ab * 8), rep(20, num_of_ab * 8), rep(25, num_of_ab * 8), rep(30, num_of_ab * 8), rep(35, num_of_ab * 8), rep(40, num_of_ab * 8))
+theta <- c(rep(.05, num_of_ab), rep(.1, num_of_ab), rep(.15, num_of_ab),
+          rep(.2, num_of_ab), rep(.25, num_of_ab), rep(.3, num_of_ab),
+          rep(.35, num_of_ab), rep(.4, num_of_ab))
+Theta <- rep(theta, 7)
+
+df_Truth <- data.frame(n, Theta, "Q.01" = 0, "Q.025" = 0, "Q.1" = 0, "Q.9" = 0, "Q.95" = 0, "Q.975" = 0, "Q.99" = 0)
+```
+
+```{r}
+#n = 10 theta = .05
+theta.05n10 <- data.frame("n" = rep(10, num_of_sims), "Theta" = rep(.05, num_of_sims), "R" = 0)
+
+#n = 10 theta = .1
+theta.1n10 <- data.frame("n" = rep(10, num_of_sims), "Theta" = rep(.1, num_of_sims), "R" = 0)
+
+#n = 10 theta = .15
+theta.15n10 <- data.frame("n" = rep(10, num_of_sims), "Theta" = rep(.15, num_of_sims), "R" = 0)
+
+#n = 10 theta = .2
+theta.2n10 <- data.frame("n" = rep(10, num_of_sims), "Theta" = rep(.2, num_of_sims), "R" = 0)
+
+#n = 10 theta = .25
+theta.25n10 <- data.frame("n" = rep(10, num_of_sims), "Theta" = rep(.25, num_of_sims), "R" = 0)
+
+#n = 10 theta = .3
+theta.3n10 <- data.frame("n" = rep(10, num_of_sims), "Theta" = rep(.3, num_of_sims), "R" = 0)
+
+#n = 10 theta = .35
+theta.35n10 <- data.frame("n" = rep(10, num_of_sims), "Theta" = rep(.35, num_of_sims), "R" = 0)
+
+#n = 10 theta = .4
+theta.4n10 <- data.frame("n" = rep(10, num_of_sims), "Theta" = rep(.4, num_of_sims), "R" = 0)
+#n = 15 theta = .05
+theta.05n15 <- data.frame("n" = rep(15, num_of_sims), "Theta" = rep(.05, num_of_sims), "R" = 0)
+
+#n = 15 theta = .1
+theta.1n15 <- data.frame("n" = rep(15, num_of_sims), "Theta" = rep(.1, num_of_sims), "R" = 0)
+
+#n = 15 theta = .15
+theta.15n15 <- data.frame("n" = rep(15, num_of_sims), "Theta" = rep(.15, num_of_sims), "R" = 0)
+
+#n = 15 theta = .2
+theta.2n15 <- data.frame("n" = rep(15, num_of_sims), "Theta" = rep(.2, num_of_sims), "R" = 0)
+
+#n = 15 theta = .25
+theta.25n15 <- data.frame("n" = rep(15, num_of_sims), "Theta" = rep(.25, num_of_sims), "R" = 0)
+
+#n = 15 theta = .3
+theta.3n15 <- data.frame("n" = rep(15, num_of_sims), "Theta" = rep(.3, num_of_sims), "R" = 0)
+
+#n = 15 theta = .35
+theta.35n15 <- data.frame("n" = rep(15, num_of_sims), "Theta" = rep(.35, num_of_sims), "R" = 0)
+
+#n = 15 theta = .4
+theta.4n15 <- data.frame("n" = rep(15, num_of_sims), "Theta" = rep(.4, num_of_sims), "R" = 0)
+
+#n = 25 theta = .05
+theta.05n25 <- data.frame("n" = rep(25, num_of_sims), "Theta" = rep(.05, num_of_sims), "R" = 0)
+
+#n = 20 theta = .05
+theta.05n20 <- data.frame("n" = rep(20, num_of_sims), "Theta" = rep(.05, num_of_sims), "R" = 0)
+
+#n = 20 theta = .1
+theta.1n20 <- data.frame("n" = rep(20, num_of_sims), "Theta" = rep(.1, num_of_sims), "R" = 0)
+
+#n = 20 theta = .15
+theta.15n20 <- data.frame("n" = rep(20, num_of_sims), "Theta" = rep(.15, num_of_sims), "R" = 0)
+
+#n = 20 theta = .2
+theta.2n20 <- data.frame("n" = rep(20, num_of_sims), "Theta" = rep(.2, num_of_sims), "R" = 0)
+
+#n = 20 theta = .25
+theta.25n20 <- data.frame("n" = rep(20, num_of_sims), "Theta" = rep(.25, num_of_sims), "R" = 0)
+
+#n = 20 theta = .3
+theta.3n20 <- data.frame("n" = rep(20, num_of_sims), "Theta" = rep(.3, num_of_sims), "R" = 0)
+
+#n = 20 theta = .35
+theta.35n20 <- data.frame("n" = rep(20, num_of_sims), "Theta" = rep(.35, num_of_sims), "R" = 0)
+
+#n = 20 theta = .4
+theta.4n20 <- data.frame("n" = rep(20, num_of_sims), "Theta" = rep(.4, num_of_sims), "R" = 0)
+
+#n = 25 theta = .1
+theta.1n25 <- data.frame("n" = rep(25, num_of_sims), "Theta" = rep(.1, num_of_sims), "R" = 0)
+
+#n = 25 theta = .15
+theta.15n25 <- data.frame("n" = rep(25, num_of_sims), "Theta" = rep(.15, num_of_sims), "R" = 0)
+
+#n = 25 theta = .2
+theta.2n25 <- data.frame("n" = rep(25, num_of_sims), "Theta" = rep(.2, num_of_sims), "R" = 0)
+
+#n = 25 theta = .25
+theta.25n25 <- data.frame("n" = rep(25, num_of_sims), "Theta" = rep(.25, num_of_sims), "R" = 0)
+
+#n = 25 theta = .3
+theta.3n25 <- data.frame("n" = rep(25, num_of_sims), "Theta" = rep(.3, num_of_sims), "R" = 0)
+
+#n = 25 theta = .35
+theta.35n25 <- data.frame("n" = rep(25, num_of_sims), "Theta" = rep(.35, num_of_sims), "R" = 0)
+
+#n = 25 theta = .4
+theta.4n25 <- data.frame("n" = rep(25, num_of_sims), "Theta" = rep(.4, num_of_sims), "R" = 0)
+
+#n = 30 theta = .05
+theta.05n30 <- data.frame("n" = rep(30, num_of_sims), "Theta" = rep(.05, num_of_sims), "R" = 0)
+
+#n = 30 theta = .1
+theta.1n30 <- data.frame("n" = rep(30, num_of_sims), "Theta" = rep(.1, num_of_sims), "R" = 0)
+
+#n = 30 theta = .15
+theta.15n30 <- data.frame("n" = rep(30, num_of_sims), "Theta" = rep(.15, num_of_sims), "R" = 0)
+
+#n = 30 theta = .2
+theta.2n30 <- data.frame("n" = rep(30, num_of_sims), "Theta" = rep(.2, num_of_sims), "R" = 0)
+
+#n = 30 theta = .25
+theta.25n30 <- data.frame("n" = rep(30, num_of_sims), "Theta" = rep(.25, num_of_sims), "R" = 0)
+
+#n = 30 theta = .3
+theta.3n30 <- data.frame("n" = rep(30, num_of_sims), "Theta" = rep(.3, num_of_sims), "R" = 0)
+
+#n = 30 theta = .35
+theta.35n30 <- data.frame("n" = rep(30, num_of_sims), "Theta" = rep(.35, num_of_sims), "R" = 0)
+
+#n = 30 theta = .4
+theta.4n30 <- data.frame("n" = rep(30, num_of_sims), "Theta" = rep(.4, num_of_sims), "R" = 0)
+
+#n = 35 theta = .05
+theta.05n35 <- data.frame("n" = rep(35, num_of_sims), "Theta" = rep(.05, num_of_sims), "R" = 0)
+
+#n = 35 theta = .1
+theta.1n35 <- data.frame("n" = rep(35, num_of_sims), "Theta" = rep(.1, num_of_sims), "R" = 0)
+
+#n = 35 theta = .15
+theta.15n35 <- data.frame("n" = rep(35, num_of_sims), "Theta" = rep(.15, num_of_sims), "R" = 0)
+
+#n = 35 theta = .2
+theta.2n35 <- data.frame("n" = rep(35, num_of_sims), "Theta" = rep(.2, num_of_sims), "R" = 0)
+
+#n = 35 theta = .25
+theta.25n35 <- data.frame("n" = rep(35, num_of_sims), "Theta" = rep(.25, num_of_sims), "R" = 0)
+
+#n = 35 theta = .3
+theta.3n35 <- data.frame("n" = rep(35, num_of_sims), "Theta" = rep(.3, num_of_sims), "R" = 0)
+
+#n = 35 theta = .35
+theta.35n35 <- data.frame("n" = rep(35, num_of_sims), "Theta" = rep(.35, num_of_sims), "R" = 0)
+
+#n = 35 theta = .4
+theta.4n35 <- data.frame("n" = rep(35, num_of_sims), "Theta" = rep(.4, num_of_sims), "R" = 0)
+
+#n = 40 theta = .05
+theta.05n40 <- data.frame("n" = rep(40, num_of_sims), "Theta" = rep(.05, num_of_sims), "R" = 0)
+
+#n = 40 theta = .1
+theta.1n40 <- data.frame("n" = rep(40, num_of_sims), "Theta" = rep(.1, num_of_sims), "R" = 0)
+
+#n = 40 theta = .15
+theta.15n40 <- data.frame("n" = rep(40, num_of_sims), "Theta" = rep(.15, num_of_sims), "R" = 0)
+
+#n = 40 theta = .2
+theta.2n40 <- data.frame("n" = rep(40, num_of_sims), "Theta" = rep(.2, num_of_sims), "R" = 0)
+
+#n = 40 theta = .25
+theta.25n40 <- data.frame("n" = rep(40, num_of_sims), "Theta" = rep(.25, num_of_sims), "R" = 0)
+
+#n = 40 theta = .3
+theta.3n40 <- data.frame("n" = rep(40, num_of_sims), "Theta" = rep(.3, num_of_sims), "R" = 0)
+
+#n = 40 theta = .35
+theta.35n40 <- data.frame("n" = rep(40, num_of_sims), "Theta" = rep(.35, num_of_sims), "R" = 0)
+
+#n = 40 theta = .4
+theta.4n40 <- data.frame("n" = rep(40, num_of_sims), "Theta" = rep(.4, num_of_sims), "R" = 0)
+
+```
+
+
+#Simulate Quantiles
+#10
+```{r}
+df_Truth <- df_Truth %>%
+  filter(n == 10)
+for (k in 1:length(df_Truth$n)) {
+  if (df_Truth$n[k] == 10 & df_Truth$Theta[k] == .05) {
+for (a in 1:num_of_sims) {
+x95 <- rnorm(10, mu, sd)
+z95 <- rnorm(10, mu, sd)
+xz95 <- cbind(x95, z95)
+xz95 <- as.data.frame(xz95)
+xz95$y95 <- rho * xz95$x95 + (1 - (rho)^2) * xz95$z95
+
+xy95 <- xz95 %>%
+  filter(x95 <= qnorm(.95))
+
+r95 <- cor(xy95$x95, xy95$y95)
+theta.05n10$R[a] <- abs(r95)
+}
+    df_Truth$Q.01[k] <- quantile(theta.05n10$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.05n10$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.05n10$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.05n10$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.05n10$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.05n10$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.05n10$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.05n10$R, .99, na.rm = TRUE)
+
+}else {
+  if (df_Truth$n[k] == 10 & df_Truth$Theta[k] == .1) {
+    for (b in 1:num_of_sims) {
+    x90 <- rnorm(10, mu, sd)
+z90 <- rnorm(10, mu, sd)
+xz90 <- cbind(x90, z90)
+xz90 <- as.data.frame(xz90)
+xz90$y90 <- rho * xz90$x90 + (1 - (rho)^2) * xz90$z90
+
+xy90 <- xz90 %>%
+  filter(x90 <= qnorm(.90))
+
+r90 <- cor(xy90$x90, xy90$y90)
+theta.1n10$R[b] <- abs(r90)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.1n10$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.1n10$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.1n10$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.1n10$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.1n10$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.1n10$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.1n10$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.1n10$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 10 & df_Truth$Theta[k] == .15){
+        for (c in 1:num_of_sims) {
+
+    x85 <- rnorm(10, mu, sd)
+z85 <- rnorm(10, mu, sd)
+xz85 <- cbind(x85, z85)
+xz85 <- as.data.frame(xz85)
+xz85$y85 <- rho * xz85$x85 + (1 - (rho)^2) * xz85$z85
+
+xy85 <- xz85 %>%
+  filter(x85 <= qnorm(.85))
+
+r85 <- cor(xy85$x85, xy85$y85)
+theta.15n10$R[c] <- abs(r85)
+        }
+    df_Truth$Q.01[k] <- quantile(theta.15n10$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.15n10$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.15n10$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.15n10$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.15n10$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.15n10$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.15n10$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.15n10$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 10 & df_Truth$Theta[k] == .2){
+    for (d in 1:num_of_sims) {
+    x80 <- rnorm(10, mu, sd)
+z80 <- rnorm(10, mu, sd)
+xz80 <- cbind(x80, z80)
+xz80 <- as.data.frame(xz80)
+xz80$y80 <- rho * xz80$x80 + (1 - (rho)^2) * xz80$z80
+
+xy80 <- xz80 %>%
+  filter(x80 <= qnorm(.80))
+
+r80 <- cor(xy80$x80, xy80$y80)
+theta.2n10$R[d] <- abs(r80)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.2n10$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.2n10$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.2n10$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.2n10$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.2n10$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.2n10$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.2n10$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.2n10$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 10 & df_Truth$Theta[k] == .25){
+    for (e in 1:num_of_sims) {
+x75 <- rnorm(10, mu, sd)
+z75 <- rnorm(10, mu, sd)
+xz75 <- cbind(x75, z75)
+xz75 <- as.data.frame(xz75)
+xz75$y75 <- rho * xz75$x75 + (1 - (rho)^2) * xz75$z75
+
+xy75 <- xz75 %>%
+  filter(x75 <= qnorm(.75))
+
+r75 <- cor(xy75$x75, xy75$y75)
+theta.25n10$R[e] <- abs(r75)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.25n10$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.25n10$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.25n10$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.25n10$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.25n10$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.25n10$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.25n10$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.25n10$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 10 & df_Truth$Theta[k] == .3){
+    for (f in 1:num_of_sims) {
+      
+    x70 <- rnorm(10, mu, sd)
+z70 <- rnorm(10, mu, sd)
+xz70 <- cbind(x70, z70)
+xz70 <- as.data.frame(xz70)
+xz70$y70 <- rho * xz70$x70 + (1 - (rho)^2) * xz70$z70
+
+xy70 <- xz70 %>%
+  filter(x70 <= qnorm(.70))
+
+r70 <- cor(xy70$x70, xy70$y70)
+theta.3n10$R[f] <- abs(r70)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.3n10$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.3n10$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.3n10$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.3n10$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.3n10$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.3n10$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.3n10$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.3n10$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 10 & df_Truth$Theta[k] == .35){
+    for (g in 1:num_of_sims) {
+    x65 <- rnorm(10, mu, sd)
+z65 <- rnorm(10, mu, sd)
+xz65 <- cbind(x65, z65)
+xz65 <- as.data.frame(xz65)
+xz65$y65 <- rho * xz65$x65 + (1 - (rho)^2) * xz65$z65
+
+xy65 <- xz65 %>%
+  filter(x65 <= qnorm(.65))
+
+r65 <- cor(xy65$x65, xy65$y65)
+theta.35n10$R[g] <- abs(r65)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.05n10$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.05n10$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.05n10$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.05n10$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.05n10$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.05n10$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.05n10$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.05n10$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 10 & df_Truth$Theta[k] == .4){
+    for (h in 1:num_of_sims) {
+    x60 <- rnorm(10, mu, sd)
+z60 <- rnorm(10, mu, sd)
+xz60 <- cbind(x60, z60)
+xz60 <- as.data.frame(xz60)
+xz60$y60 <- rho * xz60$x60 + (1 - (rho)^2) * xz60$z60
+
+xy60 <- xz60 %>%
+  filter(x60 <= qnorm(.60))
+
+r60 <- cor(xy60$x60, xy60$y60)
+theta.4n10$R[h] <- abs(r60)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.4n10$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.4n10$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.4n10$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.4n10$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.4n10$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.4n10$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.4n10$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.4n10$R, .99, na.rm = TRUE)
+  }}}}}}}}
+  save(df_Truth, file = "Truth10_8.Rdata")
+}
+```
+
+#15
+```{r}
+df_Truth <- df_Truth %>%
+  filter(n == 15)
+for (k in 1:length(df_Truth$n)) {
+  if (df_Truth$n[k] == 15 & df_Truth$Theta[k] == .05) {
+for (a in 1:num_of_sims) {
+x95 <- rnorm(15, mu, sd)
+z95 <- rnorm(15, mu, sd)
+xz95 <- cbind(x95, z95)
+xz95 <- as.data.frame(xz95)
+xz95$y95 <- rho * xz95$x95 + (1 - (rho)^2) * xz95$z95
+
+xy95 <- xz95 %>%
+  filter(x95 <= qnorm(.95))
+
+r95 <- cor(xy95$x95, xy95$y95)
+theta.05n15$R[a] <- abs(r95)
+}
+    df_Truth$Q.01[k] <- quantile(theta.05n15$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.05n15$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.05n15$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.05n15$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.05n15$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.05n15$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.05n15$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.05n15$R, .99, na.rm = TRUE)
+
+}else {
+  if (df_Truth$n[k] == 15 & df_Truth$Theta[k] == .1) {
+    for (b in 1:num_of_sims) {
+    x90 <- rnorm(15, mu, sd)
+z90 <- rnorm(15, mu, sd)
+xz90 <- cbind(x90, z90)
+xz90 <- as.data.frame(xz90)
+xz90$y90 <- rho * xz90$x90 + (1 - (rho)^2) * xz90$z90
+
+xy90 <- xz90 %>%
+  filter(x90 <= qnorm(.90))
+
+r90 <- cor(xy90$x90, xy90$y90)
+theta.1n15$R[b] <- abs(r90)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.1n15$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.1n15$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.1n15$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.1n15$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.1n15$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.1n15$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.1n15$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.1n15$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 15 & df_Truth$Theta[k] == .15){
+        for (c in 1:num_of_sims) {
+
+    x85 <- rnorm(15, mu, sd)
+z85 <- rnorm(15, mu, sd)
+xz85 <- cbind(x85, z85)
+xz85 <- as.data.frame(xz85)
+xz85$y85 <- rho * xz85$x85 + (1 - (rho)^2) * xz85$z85
+
+xy85 <- xz85 %>%
+  filter(x85 <= qnorm(.85))
+
+r85 <- cor(xy85$x85, xy85$y85)
+theta.15n15$R[c] <- abs(r85)
+        }
+    df_Truth$Q.01[k] <- quantile(theta.15n15$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.15n15$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.15n15$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.15n15$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.15n15$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.15n15$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.15n15$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.15n15$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 15 & df_Truth$Theta[k] == .2){
+    for (d in 1:num_of_sims) {
+    x80 <- rnorm(15, mu, sd)
+z80 <- rnorm(15, mu, sd)
+xz80 <- cbind(x80, z80)
+xz80 <- as.data.frame(xz80)
+xz80$y80 <- rho * xz80$x80 + (1 - (rho)^2) * xz80$z80
+
+xy80 <- xz80 %>%
+  filter(x80 <= qnorm(.80))
+
+r80 <- cor(xy80$x80, xy80$y80)
+theta.2n15$R[d] <- abs(r80)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.2n15$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.2n15$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.2n15$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.2n15$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.2n15$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.2n15$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.2n15$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.2n15$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 15 & df_Truth$Theta[k] == .25){
+    for (e in 1:num_of_sims) {
+x75 <- rnorm(15, mu, sd)
+z75 <- rnorm(15, mu, sd)
+xz75 <- cbind(x75, z75)
+xz75 <- as.data.frame(xz75)
+xz75$y75 <- rho * xz75$x75 + (1 - (rho)^2) * xz75$z75
+
+xy75 <- xz75 %>%
+  filter(x75 <= qnorm(.75))
+
+r75 <- cor(xy75$x75, xy75$y75)
+theta.25n15$R[e] <- abs(r75)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.25n15$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.25n15$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.25n15$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.25n15$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.25n15$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.25n15$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.25n15$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.25n15$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 15 & df_Truth$Theta[k] == .3){
+    for (f in 1:num_of_sims) {
+      
+    x70 <- rnorm(15, mu, sd)
+z70 <- rnorm(15, mu, sd)
+xz70 <- cbind(x70, z70)
+xz70 <- as.data.frame(xz70)
+xz70$y70 <- rho * xz70$x70 + (1 - (rho)^2) * xz70$z70
+
+xy70 <- xz70 %>%
+  filter(x70 <= qnorm(.70))
+
+r70 <- cor(xy70$x70, xy70$y70)
+theta.3n15$R[f] <- abs(r70)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.3n15$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.3n15$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.3n15$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.3n15$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.3n15$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.3n15$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.3n15$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.3n15$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 15 & df_Truth$Theta[k] == .35){
+    for (g in 1:num_of_sims) {
+    x65 <- rnorm(15, mu, sd)
+z65 <- rnorm(15, mu, sd)
+xz65 <- cbind(x65, z65)
+xz65 <- as.data.frame(xz65)
+xz65$y65 <- rho * xz65$x65 + (1 - (rho)^2) * xz65$z65
+
+xy65 <- xz65 %>%
+  filter(x65 <= qnorm(.65))
+
+r65 <- cor(xy65$x65, xy65$y65)
+theta.35n15$R[g] <- abs(r65)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.05n15$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.05n15$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.05n15$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.05n15$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.05n15$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.05n15$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.05n15$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.05n15$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 15 & df_Truth$Theta[k] == .4){
+    for (h in 1:num_of_sims) {
+    x60 <- rnorm(15, mu, sd)
+z60 <- rnorm(15, mu, sd)
+xz60 <- cbind(x60, z60)
+xz60 <- as.data.frame(xz60)
+xz60$y60 <- rho * xz60$x60 + (1 - (rho)^2) * xz60$z60
+
+xy60 <- xz60 %>%
+  filter(x60 <= qnorm(.60))
+
+r60 <- cor(xy60$x60, xy60$y60)
+theta.4n15$R[h] <- abs(r60)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.4n15$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.4n15$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.4n15$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.4n15$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.4n15$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.4n15$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.4n15$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.4n15$R, .99, na.rm = TRUE)
+  } 
+}}}}}}}
+  save(df_Truth, file ="Truth15_5.Rdata")
+}
+```
+
+#20
+```{r}
+df_Truth <- df_Truth %>%
+  filter(n == 20)
+for (k in 1:length(df_Truth$n)) {
+  if(df_Truth$n[k] == 20 & df_Truth$Theta[k] == .05){
+    for (i in 1:num_of_sims) {
+    x95 <- rnorm(20, mu, sd)
+z95 <- rnorm(20, mu, sd)
+xz95 <- cbind(x95, z95)
+xz95 <- as.data.frame(xz95)
+xz95$y95 <- rho * xz95$x95 + (1 - (rho)^2) * xz95$z95
+
+xy95 <- xz95 %>%
+  filter(x95 <= qnorm(.95))
+
+r95 <- cor(xy95$x95, xy95$y95)
+theta.05n20$R[i] <- abs(r95)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.05n20$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.05n20$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.05n20$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.05n20$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.05n20$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.05n20$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.05n20$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.05n20$R, .99, na.rm = TRUE)
+    
+  }else {
+  if (df_Truth$n[k] == 20 & df_Truth$Theta[k] == .1) {
+    for (j in 1:num_of_sims) {
+    x90 <- rnorm(20, mu, sd)
+z90 <- rnorm(20, mu, sd)
+xz90 <- cbind(x90, z90)
+xz90 <- as.data.frame(xz90)
+xz90$y90 <- rho * xz90$x90 + (1 - (rho)^2) * xz90$z90
+
+xy90 <- xz90 %>%
+  filter(x90 <= qnorm(.90))
+
+r90 <- cor(xy90$x90, xy90$y90)
+theta.1n20$R[j] <- abs(r90)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.1n20$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.1n20$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.1n20$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.1n20$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.1n20$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.1n20$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.1n20$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.1n20$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 20 & df_Truth$Theta[k] == .15){
+        for (l in 1:num_of_sims) {
+
+    x85 <- rnorm(20, mu, sd)
+z85 <- rnorm(20, mu, sd)
+xz85 <- cbind(x85, z85)
+xz85 <- as.data.frame(xz85)
+xz85$y85 <- rho * xz85$x85 + (1 - (rho)^2) * xz85$z85
+
+xy85 <- xz85 %>%
+  filter(x85 <= qnorm(.85))
+
+r85 <- cor(xy85$x85, xy85$y85)
+theta.15n20$R[l] <- abs(r85)
+        }
+    df_Truth$Q.01[k] <- quantile(theta.15n20$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.15n20$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.15n20$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.15n20$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.15n20$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.15n20$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.15n20$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.15n20$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 20 & df_Truth$Theta[k] == .2){
+    for (m in 1:num_of_sims) {
+    x80 <- rnorm(20, mu, sd)
+z80 <- rnorm(20, mu, sd)
+xz80 <- cbind(x80, z80)
+xz80 <- as.data.frame(xz80)
+xz80$y80 <- rho * xz80$x80 + (1 - (rho)^2) * xz80$z80
+
+xy80 <- xz80 %>%
+  filter(x80 <= qnorm(.80))
+
+r80 <- cor(xy80$x80, xy80$y80)
+theta.2n20$R[m] <- abs(r80)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.2n20$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.2n20$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.2n20$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.2n20$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.2n20$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.2n20$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.2n20$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.2n20$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 20 & df_Truth$Theta[k] == .25){
+    for (n in 1:num_of_sims) {
+x75 <- rnorm(20, mu, sd)
+z75 <- rnorm(20, mu, sd)
+xz75 <- cbind(x75, z75)
+xz75 <- as.data.frame(xz75)
+xz75$y75 <- rho * xz75$x75 + (1 - (rho)^2) * xz75$z75
+
+xy75 <- xz75 %>%
+  filter(x75 <= qnorm(.75))
+
+r75 <- cor(xy75$x75, xy75$y75)
+theta.25n20$R[n] <- abs(r75)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.25n20$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.25n20$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.25n20$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.25n20$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.25n20$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.25n20$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.25n20$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.25n20$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 20 & df_Truth$Theta[k] == .3){
+    for (o in 1:num_of_sims) {
+      
+    x70 <- rnorm(20, mu, sd)
+z70 <- rnorm(20, mu, sd)
+xz70 <- cbind(x70, z70)
+xz70 <- as.data.frame(xz70)
+xz70$y70 <- rho * xz70$x70 + (1 - (rho)^2) * xz70$z70
+
+xy70 <- xz70 %>%
+  filter(x70 <= qnorm(.70))
+
+r70 <- cor(xy70$x70, xy70$y70)
+theta.3n20$R[o] <- abs(r70)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.3n20$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.3n20$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.3n20$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.3n20$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.3n20$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.3n20$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.3n20$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.3n20$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 20 & df_Truth$Theta[k] == .35){
+    for (p in 1:num_of_sims) {
+    x65 <- rnorm(20, mu, sd)
+z65 <- rnorm(20, mu, sd)
+xz65 <- cbind(x65, z65)
+xz65 <- as.data.frame(xz65)
+xz65$y65 <- rho * xz65$x65 + (1 - (rho)^2) * xz65$z65
+
+xy65 <- xz65 %>%
+  filter(x65 <= qnorm(.65))
+
+r65 <- cor(xy65$x65, xy65$y65)
+theta.35n20$R[p] <- abs(r65)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.35n20$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.35n20$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.35n20$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.35n20$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.35n20$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.35n20$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.35n20$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.35n20$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 20 & df_Truth$Theta[k] == .4){
+    for (q in 1:num_of_sims) {
+    x60 <- rnorm(20, mu, sd)
+z60 <- rnorm(20, mu, sd)
+xz60 <- cbind(x60, z60)
+xz60 <- as.data.frame(xz60)
+xz60$y60 <- rho * xz60$x60 + (1 - (rho)^2) * xz60$z60
+
+xy60 <- xz60 %>%
+  filter(x60 <= qnorm(.60))
+
+r60 <- cor(xy60$x60, xy60$y60)
+theta.4n20$R[q] <- abs(r60)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.4n20$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.4n20$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.4n20$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.4n20$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.4n20$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.4n20$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.4n20$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.4n20$R, .99, na.rm = TRUE)
+  }}}}}}}}
+  save(df_Truth, file = "Truth20_8.Rdata")
+}
+```
+
+#25
+```{r}
+df_Truth <- df_Truth %>%
+  filter(n == 25)
+for (k in 1:length(df_Truth$n)) {
+  if(df_Truth$n[k] == 25 & df_Truth$Theta[k] == .05){
+    for (i in 1:num_of_sims) {
+    x95 <- rnorm(25, mu, sd)
+z95 <- rnorm(25, mu, sd)
+xz95 <- cbind(x95, z95)
+xz95 <- as.data.frame(xz95)
+xz95$y95 <- rho * xz95$x95 + (1 - (rho)^2) * xz95$z95
+
+xy95 <- xz95 %>%
+  filter(x95 <= qnorm(.95))
+
+r95 <- cor(xy95$x95, xy95$y95)
+theta.05n25$R[i] <- abs(r95)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.05n25$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.05n25$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.05n25$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.05n25$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.05n25$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.05n25$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.05n25$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.05n25$R, .99, na.rm = TRUE)
+    
+  }else {
+  if (df_Truth$n[k] == 25 & df_Truth$Theta[k] == .1) {
+    for (j in 1:num_of_sims) {
+    x90 <- rnorm(25, mu, sd)
+z90 <- rnorm(25, mu, sd)
+xz90 <- cbind(x90, z90)
+xz90 <- as.data.frame(xz90)
+xz90$y90 <- rho * xz90$x90 + (1 - (rho)^2) * xz90$z90
+
+xy90 <- xz90 %>%
+  filter(x90 <= qnorm(.90))
+
+r90 <- cor(xy90$x90, xy90$y90)
+theta.1n25$R[j] <- abs(r90)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.1n25$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.1n25$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.1n25$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.1n25$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.1n25$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.1n25$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.1n25$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.1n25$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 25 & df_Truth$Theta[k] == .15){
+        for (l in 1:num_of_sims) {
+
+    x85 <- rnorm(25, mu, sd)
+z85 <- rnorm(25, mu, sd)
+xz85 <- cbind(x85, z85)
+xz85 <- as.data.frame(xz85)
+xz85$y85 <- rho * xz85$x85 + (1 - (rho)^2) * xz85$z85
+
+xy85 <- xz85 %>%
+  filter(x85 <= qnorm(.85))
+
+r85 <- cor(xy85$x85, xy85$y85)
+theta.15n25$R[l] <- abs(r85)
+        }
+    df_Truth$Q.01[k] <- quantile(theta.15n25$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.15n25$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.15n25$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.15n25$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.15n25$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.15n25$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.15n25$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.15n25$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 25 & df_Truth$Theta[k] == .2){
+    for (m in 1:num_of_sims) {
+    x80 <- rnorm(25, mu, sd)
+z80 <- rnorm(25, mu, sd)
+xz80 <- cbind(x80, z80)
+xz80 <- as.data.frame(xz80)
+xz80$y80 <- rho * xz80$x80 + (1 - (rho)^2) * xz80$z80
+
+xy80 <- xz80 %>%
+  filter(x80 <= qnorm(.80))
+
+r80 <- cor(xy80$x80, xy80$y80)
+theta.2n25$R[m] <- abs(r80)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.2n25$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.2n25$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.2n25$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.2n25$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.2n25$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.2n25$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.2n25$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.2n25$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 25 & df_Truth$Theta[k] == .25){
+    for (n in 1:num_of_sims) {
+x75 <- rnorm(25, mu, sd)
+z75 <- rnorm(25, mu, sd)
+xz75 <- cbind(x75, z75)
+xz75 <- as.data.frame(xz75)
+xz75$y75 <- rho * xz75$x75 + (1 - (rho)^2) * xz75$z75
+
+xy75 <- xz75 %>%
+  filter(x75 <= qnorm(.75))
+
+r75 <- cor(xy75$x75, xy75$y75)
+theta.25n25$R[n] <- abs(r75)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.25n25$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.25n25$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.25n25$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.25n25$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.25n25$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.25n25$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.25n25$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.25n25$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 25 & df_Truth$Theta[k] == .3){
+    for (o in 1:num_of_sims) {
+      
+    x70 <- rnorm(25, mu, sd)
+z70 <- rnorm(25, mu, sd)
+xz70 <- cbind(x70, z70)
+xz70 <- as.data.frame(xz70)
+xz70$y70 <- rho * xz70$x70 + (1 - (rho)^2) * xz70$z70
+
+xy70 <- xz70 %>%
+  filter(x70 <= qnorm(.70))
+
+r70 <- cor(xy70$x70, xy70$y70)
+theta.3n25$R[o] <- abs(r70)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.3n25$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.3n25$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.3n25$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.3n25$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.3n25$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.3n25$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.3n25$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.3n25$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 25 & df_Truth$Theta[k] == .35){
+    for (p in 1:num_of_sims) {
+    x65 <- rnorm(25, mu, sd)
+z65 <- rnorm(25, mu, sd)
+xz65 <- cbind(x65, z65)
+xz65 <- as.data.frame(xz65)
+xz65$y65 <- rho * xz65$x65 + (1 - (rho)^2) * xz65$z65
+
+xy65 <- xz65 %>%
+  filter(x65 <= qnorm(.65))
+
+r65 <- cor(xy65$x65, xy65$y65)
+theta.35n25$R[p] <- abs(r65)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.35n25$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.35n25$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.35n25$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.35n25$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.35n25$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.35n25$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.35n25$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.35n25$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 25 & df_Truth$Theta[k] == .4){
+    for (q in 1:num_of_sims) {
+    x60 <- rnorm(25, mu, sd)
+z60 <- rnorm(25, mu, sd)
+xz60 <- cbind(x60, z60)
+xz60 <- as.data.frame(xz60)
+xz60$y60 <- rho * xz60$x60 + (1 - (rho)^2) * xz60$z60
+
+xy60 <- xz60 %>%
+  filter(x60 <= qnorm(.60))
+
+r60 <- cor(xy60$x60, xy60$y60)
+theta.4n25$R[q] <- abs(r60)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.4n25$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.4n25$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.4n25$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.4n25$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.4n25$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.4n25$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.4n25$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.4n25$R, .99, na.rm = TRUE)
+  }}}}}}}}
+  save(df_Truth, file = "Truth25_8.Rdata")
+}
+```
+
+#30
+```{r}
+df_Truth <- df_Truth %>%
+  filter(n == 30)
+for (k in 1:length(df_Truth$n)) {
+    if(df_Truth$n[k] == 30 & df_Truth$Theta[k] == .05){
+    for (r in 1:num_of_sims) {
+    x95 <- rnorm(30, mu, sd)
+z95 <- rnorm(30, mu, sd)
+xz95 <- cbind(x95, z95)
+xz95 <- as.data.frame(xz95)
+xz95$y95 <- rho * xz95$x95 + (1 - (rho)^2) * xz95$z95
+
+xy95 <- xz95 %>%
+  filter(x95 <= qnorm(.95))
+
+r95 <- cor(xy95$x95, xy95$y95)
+theta.05n30$R[r] <- abs(r95)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.05n30$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.05n30$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.05n30$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.05n30$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.05n30$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.05n30$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.05n30$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.05n30$R, .99, na.rm = TRUE)
+    
+  }else {
+  if (df_Truth$n[k] == 30 & df_Truth$Theta[k] == .1) {
+    for (s in 1:num_of_sims) {
+    x90 <- rnorm(30, mu, sd)
+z90 <- rnorm(30, mu, sd)
+xz90 <- cbind(x90, z90)
+xz90 <- as.data.frame(xz90)
+xz90$y90 <- rho * xz90$x90 + (1 - (rho)^2) * xz90$z90
+
+xy90 <- xz90 %>%
+  filter(x90 <= qnorm(.90))
+
+r90 <- cor(xy90$x90, xy90$y90)
+theta.1n30$R[s] <- abs(r90)
+    }
+     df_Truth$Q.01[k] <- quantile(theta.1n30$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.1n30$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.1n30$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.1n30$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.1n30$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.1n30$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.1n30$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.1n30$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 30 & df_Truth$Theta[k] == .15){
+        for (t in 1:num_of_sims) {
+
+    x85 <- rnorm(30, mu, sd)
+z85 <- rnorm(30, mu, sd)
+xz85 <- cbind(x85, z85)
+xz85 <- as.data.frame(xz85)
+xz85$y85 <- rho * xz85$x85 + (1 - (rho)^2) * xz85$z85
+
+xy85 <- xz85 %>%
+  filter(x85 <= qnorm(.85))
+
+r85 <- cor(xy85$x85, xy85$y85)
+theta.15n30$R[t] <- abs(r85)
+        }
+     df_Truth$Q.01[k] <- quantile(theta.15n30$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.15n30$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.15n30$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.15n30$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.15n30$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.15n30$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.15n30$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.15n30$R, .99, na.rm = TRUE)
+  }else{
+  if(df_Truth$n[k] == 30 & df_Truth$Theta[k] == .2){
+    for (u in 1:num_of_sims) {
+    x80 <- rnorm(30, mu, sd)
+z80 <- rnorm(30, mu, sd)
+xz80 <- cbind(x80, z80)
+xz80 <- as.data.frame(xz80)
+xz80$y80 <- rho * xz80$x80 + (1 - (rho)^2) * xz80$z80
+
+xy80 <- xz80 %>%
+  filter(x80 <= qnorm(.80))
+
+r80 <- cor(xy80$x80, xy80$y80)
+theta.2n30$R[u] <- abs(r80)
+    }
+     df_Truth$Q.01[k] <- quantile(theta.2n30$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.2n30$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.2n30$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.2n30$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.2n30$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.2n30$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.2n30$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.2n30$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 30 & df_Truth$Theta[k] == .25){
+    for (v in 1:num_of_sims) {
+x75 <- rnorm(30, mu, sd)
+z75 <- rnorm(30, mu, sd)
+xz75 <- cbind(x75, z75)
+xz75 <- as.data.frame(xz75)
+xz75$y75 <- rho * xz75$x75 + (1 - (rho)^2) * xz75$z75
+
+xy75 <- xz75 %>%
+  filter(x75 <= qnorm(.75))
+
+r75 <- cor(xy75$x75, xy75$y75)
+theta.25n30$R[v] <- abs(r75)
+    }
+     df_Truth$Q.01[k] <- quantile(theta.25n30$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.25n30$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.25n30$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.25n30$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.25n30$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.25n30$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.25n30$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.25n30$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 30 & df_Truth$Theta[k] == .3){
+    for (w in 1:num_of_sims) {
+      
+    x70 <- rnorm(30, mu, sd)
+z70 <- rnorm(30, mu, sd)
+xz70 <- cbind(x70, z70)
+xz70 <- as.data.frame(xz70)
+xz70$y70 <- rho * xz70$x70 + (1 - (rho)^2) * xz70$z70
+
+xy70 <- xz70 %>%
+  filter(x70 <= qnorm(.70))
+
+r70 <- cor(xy70$x70, xy70$y70)
+theta.3n30$R[w] <- abs(r70)
+    }
+     df_Truth$Q.01[k] <- quantile(theta.3n30$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.3n30$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.3n30$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.3n30$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.3n30$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.3n30$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.3n30$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.3n30$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 30 & df_Truth$Theta[k] == .35){
+    for (x in 1:num_of_sims) {
+    x65 <- rnorm(30, mu, sd)
+z65 <- rnorm(30, mu, sd)
+xz65 <- cbind(x65, z65)
+xz65 <- as.data.frame(xz65)
+xz65$y65 <- rho * xz65$x65 + (1 - (rho)^2) * xz65$z65
+
+xy65 <- xz65 %>%
+  filter(x65 <= qnorm(.65))
+
+r65 <- cor(xy65$x65, xy65$y65)
+theta.35n30$R[x] <- abs(r65)
+    }
+     df_Truth$Q.01[k] <- quantile(theta.35n30$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.35n30$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.35n30$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.35n30$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.35n30$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.35n30$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.35n30$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.35n30$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 30 & df_Truth$Theta[k] == .4){
+    for (y in 1:num_of_sims) {
+    x60 <- rnorm(30, mu, sd)
+z60 <- rnorm(30, mu, sd)
+xz60 <- cbind(x60, z60)
+xz60 <- as.data.frame(xz60)
+xz60$y60 <- rho * xz60$x60 + (1 - (rho)^2) * xz60$z60
+
+xy60 <- xz60 %>%
+  filter(x60 <= qnorm(.60))
+
+r60 <- cor(xy60$x60, xy60$y60)
+theta.4n30$R[y] <- abs(r60)
+    }
+     df_Truth$Q.01[k] <- quantile(theta.4n30$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.4n30$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.4n30$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.4n30$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.4n30$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.4n30$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.4n30$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.4n30$R, .99, na.rm = TRUE)
+  }}}}}}}}
+  save(df_Truth, file = "Truth30_8.Rdata")
+}
+```
+
+#35
+```{r}
+df_Truth <- df_Truth %>%
+  filter(n == 35)
+for (k in 1:length(df_Truth$n)) {
+  if (df_Truth$n[k] == 35 & df_Truth$Theta[k] == .05) {
+for (a in 1:num_of_sims) {
+x95 <- rnorm(35, mu, sd)
+z95 <- rnorm(35, mu, sd)
+xz95 <- cbind(x95, z95)
+xz95 <- as.data.frame(xz95)
+xz95$y95 <- rho * xz95$x95 + (1 - (rho)^2) * xz95$z95
+
+xy95 <- xz95 %>%
+  filter(x95 <= qnorm(.95))
+
+r95 <- cor(xy95$x95, xy95$y95)
+theta.05n35$R[a] <- abs(r95)
+}
+    df_Truth$Q.01[k] <- quantile(theta.05n35$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.05n35$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.05n35$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.05n35$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.05n35$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.05n35$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.05n35$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.05n35$R, .99, na.rm = TRUE)
+
+}else {
+  if (df_Truth$n[k] == 35 & df_Truth$Theta[k] == .1) {
+    for (b in 1:num_of_sims) {
+    x90 <- rnorm(35, mu, sd)
+z90 <- rnorm(35, mu, sd)
+xz90 <- cbind(x90, z90)
+xz90 <- as.data.frame(xz90)
+xz90$y90 <- rho * xz90$x90 + (1 - (rho)^2) * xz90$z90
+
+xy90 <- xz90 %>%
+  filter(x90 <= qnorm(.90))
+
+r90 <- cor(xy90$x90, xy90$y90)
+theta.1n35$R[b] <- abs(r90)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.1n35$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.1n35$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.1n35$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.1n35$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.1n35$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.1n35$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.1n35$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.1n35$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 35 & df_Truth$Theta[k] == .15){
+        for (c in 1:num_of_sims) {
+
+    x85 <- rnorm(35, mu, sd)
+z85 <- rnorm(35, mu, sd)
+xz85 <- cbind(x85, z85)
+xz85 <- as.data.frame(xz85)
+xz85$y85 <- rho * xz85$x85 + (1 - (rho)^2) * xz85$z85
+
+xy85 <- xz85 %>%
+  filter(x85 <= qnorm(.85))
+
+r85 <- cor(xy85$x85, xy85$y85)
+theta.15n35$R[c] <- abs(r85)
+        }
+    df_Truth$Q.01[k] <- quantile(theta.15n35$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.15n35$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.15n35$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.15n35$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.15n35$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.15n35$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.15n35$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.15n35$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 35 & df_Truth$Theta[k] == .2){
+    for (d in 1:num_of_sims) {
+    x80 <- rnorm(35, mu, sd)
+z80 <- rnorm(35, mu, sd)
+xz80 <- cbind(x80, z80)
+xz80 <- as.data.frame(xz80)
+xz80$y80 <- rho * xz80$x80 + (1 - (rho)^2) * xz80$z80
+
+xy80 <- xz80 %>%
+  filter(x80 <= qnorm(.80))
+
+r80 <- cor(xy80$x80, xy80$y80)
+theta.2n35$R[d] <- abs(r80)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.2n35$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.2n35$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.2n35$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.2n35$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.2n35$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.2n35$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.2n35$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.2n35$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 35 & df_Truth$Theta[k] == .25){
+    for (e in 1:num_of_sims) {
+x75 <- rnorm(35, mu, sd)
+z75 <- rnorm(35, mu, sd)
+xz75 <- cbind(x75, z75)
+xz75 <- as.data.frame(xz75)
+xz75$y75 <- rho * xz75$x75 + (1 - (rho)^2) * xz75$z75
+
+xy75 <- xz75 %>%
+  filter(x75 <= qnorm(.75))
+
+r75 <- cor(xy75$x75, xy75$y75)
+theta.25n35$R[e] <- abs(r75)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.25n35$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.25n35$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.25n35$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.25n35$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.25n35$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.25n35$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.25n35$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.25n35$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 35 & df_Truth$Theta[k] == .3){
+    for (f in 1:num_of_sims) {
+      
+    x70 <- rnorm(35, mu, sd)
+z70 <- rnorm(35, mu, sd)
+xz70 <- cbind(x70, z70)
+xz70 <- as.data.frame(xz70)
+xz70$y70 <- rho * xz70$x70 + (1 - (rho)^2) * xz70$z70
+
+xy70 <- xz70 %>%
+  filter(x70 <= qnorm(.70))
+
+r70 <- cor(xy70$x70, xy70$y70)
+theta.3n35$R[f] <- abs(r70)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.3n35$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.3n35$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.3n35$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.3n35$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.3n35$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.3n35$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.3n35$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.3n35$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 35 & df_Truth$Theta[k] == .35){
+    for (g in 1:num_of_sims) {
+    x65 <- rnorm(35, mu, sd)
+z65 <- rnorm(35, mu, sd)
+xz65 <- cbind(x65, z65)
+xz65 <- as.data.frame(xz65)
+xz65$y65 <- rho * xz65$x65 + (1 - (rho)^2) * xz65$z65
+
+xy65 <- xz65 %>%
+  filter(x65 <= qnorm(.65))
+
+r65 <- cor(xy65$x65, xy65$y65)
+theta.35n35$R[g] <- abs(r65)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.35n35$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.35n35$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.35n35$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.35n35$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.35n35$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.35n35$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.35n35$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.35n35$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 35 & df_Truth$Theta[k] == .4){
+    for (h in 1:num_of_sims) {
+    x60 <- rnorm(35, mu, sd)
+z60 <- rnorm(35, mu, sd)
+xz60 <- cbind(x60, z60)
+xz60 <- as.data.frame(xz60)
+xz60$y60 <- rho * xz60$x60 + (1 - (rho)^2) * xz60$z60
+
+xy60 <- xz60 %>%
+  filter(x60 <= qnorm(.60))
+
+r60 <- cor(xy60$x60, xy60$y60)
+theta.4n35$R[h] <- abs(r60)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.4n35$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.4n35$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.4n35$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.4n35$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.4n35$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.4n35$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.4n35$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.4n35$R, .99, na.rm = TRUE)
+  }}}}}}}}
+  save(df_Truth, file = "Truth35_8.Rdata")
+}
+```
+
+#40
+```{r}
+df_Truth <- df_Truth %>%
+  filter(n == 40)
+for (k in 1:length(df_Truth$n)) {
+  if(df_Truth$n[k] == 40 & df_Truth$Theta[k] == .05){
+    for (i in 1:num_of_sims) {
+    x95 <- rnorm(40, mu, sd)
+z95 <- rnorm(40, mu, sd)
+xz95 <- cbind(x95, z95)
+xz95 <- as.data.frame(xz95)
+xz95$y95 <- rho * xz95$x95 + (1 - (rho)^2) * xz95$z95
+
+xy95 <- xz95 %>%
+  filter(x95 <= qnorm(.95))
+
+r95 <- cor(xy95$x95, xy95$y95)
+theta.05n40$R[i] <- abs(r95)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.05n40$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.05n40$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.05n40$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.05n40$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.05n40$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.05n40$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.05n40$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.05n40$R, .99, na.rm = TRUE)
+}else{
+  if (df_Truth$n[k] == 40 & df_Truth$Theta[k] == .1) {
+    for (j in 1:num_of_sims) {
+    x90 <- rnorm(40, mu, sd)
+z90 <- rnorm(40, mu, sd)
+xz90 <- cbind(x90, z90)
+xz90 <- as.data.frame(xz90)
+xz90$y90 <- rho * xz90$x90 + (1 - (rho)^2) * xz90$z90
+
+xy90 <- xz90 %>%
+  filter(x90 <= qnorm(.90))
+
+r90 <- cor(xy90$x90, xy90$y90)
+theta.1n40$R[j] <- abs(r90)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.1n40$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.1n40$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.1n40$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.1n40$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.1n40$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.1n40$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.1n40$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.1n40$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 40 & df_Truth$Theta[k] == .15){
+        for (l in 1:num_of_sims) {
+
+    x85 <- rnorm(40, mu, sd)
+z85 <- rnorm(40, mu, sd)
+xz85 <- cbind(x85, z85)
+xz85 <- as.data.frame(xz85)
+xz85$y85 <- rho * xz85$x85 + (1 - (rho)^2) * xz85$z85
+
+xy85 <- xz85 %>%
+  filter(x85 <= qnorm(.85))
+
+r85 <- cor(xy85$x85, xy85$y85)
+theta.15n40$R[l] <- abs(r85)
+        }
+    df_Truth$Q.01[k] <- quantile(theta.15n40$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.15n40$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.15n40$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.15n40$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.15n40$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.15n40$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.15n40$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.15n40$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 40 & df_Truth$Theta[k] == .2){
+    for (m in 1:num_of_sims) {
+    x80 <- rnorm(40, mu, sd)
+z80 <- rnorm(40, mu, sd)
+xz80 <- cbind(x80, z80)
+xz80 <- as.data.frame(xz80)
+xz80$y80 <- rho * xz80$x80 + (1 - (rho)^2) * xz80$z80
+
+xy80 <- xz80 %>%
+  filter(x80 <= qnorm(.80))
+
+r80 <- cor(xy80$x80, xy80$y80)
+theta.2n40$R[m] <- abs(r80)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.2n40$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.2n40$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.2n40$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.2n40$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.2n40$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.2n40$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.2n40$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.2n40$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 40 & df_Truth$Theta[k] == .25){
+    for (n in 1:num_of_sims) {
+x75 <- rnorm(40, mu, sd)
+z75 <- rnorm(40, mu, sd)
+xz75 <- cbind(x75, z75)
+xz75 <- as.data.frame(xz75)
+xz75$y75 <- rho * xz75$x75 + (1 - (rho)^2) * xz75$z75
+
+xy75 <- xz75 %>%
+  filter(x75 <= qnorm(.75))
+
+r75 <- cor(xy75$x75, xy75$y75)
+theta.25n40$R[n] <- abs(r75)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.25n40$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.25n40$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.25n40$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.25n40$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.25n40$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.25n40$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.25n40$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.25n40$R, .99, na.rm = TRUE)
+    
+} else {
+  if(df_Truth$n[k] == 40 & df_Truth$Theta[k] == .3){
+    for (o in 1:num_of_sims) {
+      
+    x70 <- rnorm(40, mu, sd)
+z70 <- rnorm(40, mu, sd)
+xz70 <- cbind(x70, z70)
+xz70 <- as.data.frame(xz70)
+xz70$y70 <- rho * xz70$x70 + (1 - (rho)^2) * xz70$z70
+
+xy70 <- xz70 %>%
+  filter(x70 <= qnorm(.70))
+
+r70 <- cor(xy70$x70, xy70$y70)
+theta.3n40$R[o] <- abs(r70)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.3n40$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.3n40$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.3n40$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.3n40$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.3n40$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.3n40$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.3n40$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.3n40$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 40 & df_Truth$Theta[k] == .35){
+    for (p in 1:num_of_sims) {
+    x65 <- rnorm(40, mu, sd)
+z65 <- rnorm(40, mu, sd)
+xz65 <- cbind(x65, z65)
+xz65 <- as.data.frame(xz65)
+xz65$y65 <- rho * xz65$x65 + (1 - (rho)^2) * xz65$z65
+
+xy65 <- xz65 %>%
+  filter(x65 <= qnorm(.65))
+
+r65 <- cor(xy65$x65, xy65$y65)
+theta.35n40$R[p] <- abs(r65)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.35n40$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.35n40$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.35n40$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.35n40$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.35n40$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.35n40$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.35n40$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.35n40$R, .99, na.rm = TRUE)
+
+} else {
+  if(df_Truth$n[k] == 40 & df_Truth$Theta[k] == .4){
+    for (q in 1:num_of_sims) {
+    x60 <- rnorm(40, mu, sd)
+z60 <- rnorm(40, mu, sd)
+xz60 <- cbind(x60, z60)
+xz60 <- as.data.frame(xz60)
+xz60$y60 <- rho * xz60$x60 + (1 - (rho)^2) * xz60$z60
+
+xy60 <- xz60 %>%
+  filter(x60 <= qnorm(.60))
+
+r60 <- cor(xy60$x60, xy60$y60)
+theta.4n40$R[q] <- abs(r60)
+    }
+    df_Truth$Q.01[k] <- quantile(theta.4n40$R, .01, na.rm = TRUE)
+    df_Truth$Q.025[k] <- quantile(theta.4n40$R, .025, na.rm = TRUE)
+    df_Truth$Q.05[k] <- quantile(theta.4n40$R, .05, na.rm = TRUE)
+    df_Truth$Q.1[k] <- quantile(theta.4n40$R, .1, na.rm = TRUE)
+    df_Truth$Q.9[k] <- quantile(theta.4n40$R, .9, na.rm = TRUE)
+    df_Truth$Q.95[k] <- quantile(theta.4n40$R, .95, na.rm = TRUE)
+    df_Truth$Q.975[k] <- quantile(theta.4n40$R, .975, na.rm = TRUE)
+    df_Truth$Q.99[k] <- quantile(theta.4n40$R, .99, na.rm = TRUE)
+  }}}}}}}}
+save(df_Truth, file = "Truth40_8.Rdata")
+}
+
+```
+
+
+
+#Create Comparision Dataframe
+```{r}
+compare <- data.frame( "n" = c(rep(10, 64), rep(15, 64), rep(20, 64), rep(25, 64), rep(30, 64), rep(35, 64), rep(40, 64)),
+                       "theta" = rep(c(rep(.05, 8), rep(.1, 8), rep(.15, 8), rep(.2, 8), rep(.25, 8), rep(.3, 8), rep(.35, 8), rep(.4, 8)), 7),
+                       "quantile" = rep(c(.01, .025, .05, .1, .9, .95, .975, .99), 56),
+                       "average" = c(mean(df_Truth$Q.01[df_Truth$n == 10 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 10 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 10 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 10 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 10 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 10 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 10 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 10 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 10 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 10 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 10 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 10 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 10 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 10 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 10 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 10 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 10 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 10 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 10 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 10 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 10 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 10 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 10 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 10 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 10 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 10 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 10 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 10 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 10 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 10 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 10 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 10 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 10 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 10 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 10 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 10 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 10 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 10 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 10 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 10 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 10 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 10 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 10 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 10 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 10 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 10 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 10 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 10 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 10 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 10 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 10 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 10 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 10 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 10 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 10 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 10 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 10 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 10 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 10 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 10 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 10 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 10 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 10 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 10 & df_Truth$Theta == .4]),
+                         
+                                     mean(df_Truth$Q.01[df_Truth$n == 15 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 15 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 15 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 15 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 15 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 15 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 15 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 15 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 15 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 15 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 15 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 15 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 15 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 15 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 15 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 15 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 15 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 15 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 15 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 15 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 15 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 15 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 15 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 15 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 15 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 15 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 15 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 15 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 15 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 15 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 15 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 15 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 15 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 15 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 15 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 15 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 15 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 15 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 15 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 15 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 15 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 15 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 15 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 15 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 15 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 15 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 15 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 15 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 15 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 15 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 15 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 15 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 15 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 15 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 15 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 15 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 15 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 15 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 15 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 15 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 15 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 15 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 15 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 15 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 20 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 20 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 20 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 20 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 20 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 20 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 20 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 20 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 20 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 20 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 20 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 20 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 20 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 20 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 20 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 20 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 20 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 20 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 20 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 20 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 20 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 20 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 20 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 20 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 20 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 20 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 20 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 20 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 20 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 20 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 20 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 20 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 20 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 20 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 20 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 20 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 20 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 20 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 20 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 20 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 20 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 20 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 20 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 20 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 20 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 20 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 20 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 20 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 20 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 20 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 20 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 20 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 20 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 20 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 20 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 20 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 20 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 20 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 20 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 20 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 20 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 20 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 20 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 20 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 25 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 25 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 25 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 25 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 25 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 25 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 25 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 25 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 25 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 25 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 25 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 25 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 25 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 25 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 25 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 25 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 25 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 25 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 25 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 25 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 25 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 25 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 25 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 25 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 25 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 25 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 25 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 25 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 25 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 25 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 25 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 25 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 25 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 25 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 25 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 25 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 25 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 25 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 25 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 25 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 25 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 25 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 25 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 25 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 25 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 25 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 25 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 25 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 25 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 25 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 25 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 25 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 25 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 25 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 25 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 25 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 25 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 25 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 25 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 25 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 25 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 25 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 25 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 25 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 30 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 30 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 30 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 30 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 30 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 30 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 30 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 30 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 30 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 30 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 30 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 30 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 30 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 30 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 30 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 30 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 30 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 30 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 30 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 30 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 30 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 30 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 30 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 30 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 30 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 30 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 30 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 30 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 30 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 30 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 30 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 30 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 30 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 30 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 30 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 30 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 30 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 30 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 30 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 30 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 30 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 30 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 30 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 30 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 30 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 30 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 30 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 30 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 30 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 30 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 30 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 30 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 30 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 30 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 30 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 30 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 30 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 30 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 30 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 30 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 30 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 30 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 30 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 30 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 35 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 35 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 35 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 35 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 35 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 35 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 35 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 35 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 35 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 35 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 35 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 35 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 35 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 35 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 35 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 35 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 35 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 35 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 35 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 35 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 35 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 35 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 35 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 35 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 35 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 35 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 35 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 35 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 35 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 35 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 35 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 35 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 35 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 35 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 35 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 35 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 35 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 35 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 35 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 35 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 35 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 35 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 35 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 35 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 35 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 35 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 35 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 35 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 35 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 35 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 35 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 35 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 35 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 35 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 35 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 35 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 35 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 35 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 35 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 35 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 35 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 35 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 35 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 35 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 40 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 40 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 40 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 40 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 40 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 40 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 40 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 40 & df_Truth$Theta == .05]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 40 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 40 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 40 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 40 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 40 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 40 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 40 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 40 & df_Truth$Theta == .1]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 40 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 40 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 40 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 40 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 40 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 40 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 40 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 40 & df_Truth$Theta == .15]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 40 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 40 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 40 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 40 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 40 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 40 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 40 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 40 & df_Truth$Theta == .2]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 40 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 40 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 40 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 40 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 40 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 40 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 40 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 40 & df_Truth$Theta == .25]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 40 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 40 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 40 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 40 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 40 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 40 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 40 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 40 & df_Truth$Theta == .3]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 40 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 40 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 40 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 40 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 40 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 40 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 40 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 40 & df_Truth$Theta == .35]),
+                                     mean(df_Truth$Q.01[df_Truth$n == 40 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.025[df_Truth$n == 40 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.05[df_Truth$n == 40 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.1[df_Truth$n == 40 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.9[df_Truth$n == 40 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.95[df_Truth$n == 40 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.975[df_Truth$n == 40 & df_Truth$Theta == .4]),
+                                     mean(df_Truth$Q.99[df_Truth$n == 40 & df_Truth$Theta == .4])),
+                       "Beta" = c(qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .05]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .05]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .05]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .05]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .05]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .05]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .1]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .1]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .1]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .1]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .1]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .1]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .15]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .15]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .15]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .15]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .15]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .15]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .2]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .2]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .2]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .2]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .2]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .2]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .25]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .25]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .25]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .25]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .25]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .25]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .3]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .3]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .3]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .3]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .3]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .3]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .35]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .35]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .35]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .35]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .35]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .35]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .4]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .4]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .4]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .4]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .4]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .4]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .4]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 10 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 10 & df.Rho$Theta == .4]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .05]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .05]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .05]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .05]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .05]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .05]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .1]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .1]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .1]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .1]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .1]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .1]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .15]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .15]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .15]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .15]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .15]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .15]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .2]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .2]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .2]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .2]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .2]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .2]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .25]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .25]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .25]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .25]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .25]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .25]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .3]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .3]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .3]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .3]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .3]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .3]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .35]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .35]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .35]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .35]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .35]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .35]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .4]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .4]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .4]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .4]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .4]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .4]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .4]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 15 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 15 & df.Rho$Theta == .4]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .05]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .05]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .05]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .05]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .05]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .05]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .1]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .1]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .1]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .1]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .1]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .1]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .15]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .15]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .15]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .15]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .15]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .15]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .2]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .2]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .2]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .2]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .2]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .2]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .25]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .25]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .25]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .25]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .25]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .25]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .3]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .3]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .3]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .3]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .3]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .3]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .35]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .35]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .35]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .35]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .35]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .35]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .4]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .4]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .4]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .4]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .4]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .4]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .4]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 20 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 20 & df.Rho$Theta == .4]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .05]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .05]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .05]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .05]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .05]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .05]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .1]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .1]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .1]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .1]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .1]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .1]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .15]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .15]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .15]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .15]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .15]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .15]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .2]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .2]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .2]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .2]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .2]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .2]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .25]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .25]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .25]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .25]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .25]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .25]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .3]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .3]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .3]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .3]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .3]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .3]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .35]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .35]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .35]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .35]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .35]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .35]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .4]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .4]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .4]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .4]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .4]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .4]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .4]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 25 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 25 & df.Rho$Theta == .4]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .05]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .05]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .05]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .05]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .05]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .05]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .05],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .1]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .1]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .1]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .1]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .1]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .1]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .1],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .15]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .15]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .15]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .15]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .15]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .15]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .15],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .2]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .2]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .2]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .2]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .2]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .2]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .2],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .25]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .25]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .25]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .25]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .25]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .25]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .25],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .3]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .3]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .3]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .3]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .3]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .3]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .3],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .35]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .35]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .35]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .35]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .35]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .35]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .35],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .4]),
+                                  qbeta(.025, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .4]),
+                                  qbeta(.05, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .4]),
+                                  qbeta(.01, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .4]),
+                                  qbeta(.9, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .4]),
+                                  qbeta(.95, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .4]),
+                                  qbeta(.975, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .4]),
+                                  qbeta(.99, df.Rho$fita[df.Rho$n == 30 & df.Rho$Theta == .4],
+                                        df.Rho$fitb[df.Rho$n == 30 & df.Rho$Theta == .4]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .05]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .05]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .05]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .05]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .05]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .05]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .1]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .1]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .1]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .1]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .1]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .1]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .15]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .15]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .15]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .15]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .15]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .15]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .2]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .2]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .2]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .2]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .2]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .2]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .25]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .25]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .25]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .25]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .25]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .25]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .3]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .3]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .3]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .3]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .3]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .3]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .35]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .35]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .35]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .35]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .35]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .35]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .4]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .4]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .4]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .4]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .4]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .4]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .4]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 35 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 35 & df.Rho$Theta == .4]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .05]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .05]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .05]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .05]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .05]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .05]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .05],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .05]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .1]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .1]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .1]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .1]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .1]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .1]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .1],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .1]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .15]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .15]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .15]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .15]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .15]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .15]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .15],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .15]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .2]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .2]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .2]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .2]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .2]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .2]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .2],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .2]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .25]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .25]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .25]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .25]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .25]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .25]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .25],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .25]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .3]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .3]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .3]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .3]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .3]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .3]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .3],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .3]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .35]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .35]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .35]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .35]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .35]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .35]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .35],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .35]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .4]),
+                                  qbeta(.025, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .4]),
+                                  qbeta(.05, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .4]),
+                                  qbeta(.01, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .4]),
+                                  qbeta(.9, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .4]),
+                                  qbeta(.95, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .4]),
+                                  qbeta(.975, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .4]),
+                                  qbeta(.99, df.Rho$MME_fita[df.Rho$n == 40 & df.Rho$Theta == .4],
+                                        df.Rho$MME_fitb[df.Rho$n == 40 & df.Rho$Theta == .4])))
+```
+
+#Compute Relative Error
+```{r}
+compare <- compare%>%
+mutate("Relative.Error" = (Compare$Beta - compare$average)/compare$average)
+```
+
+
+
+#Save the data
+```{r}
+save(compare, file = "compare_.Rdata")
+```
+
+
+
+
+
